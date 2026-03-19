@@ -1,6 +1,6 @@
 /**
- * 日常运维QA搜索系统 - 前端逻辑 v2.0
- * 功能：分片加载、表格/卡片双视图、详情弹窗
+ * 日常运维QA搜索系统 - 前端逻辑 v2.1
+ * 功能：分片加载、表格/卡片双视图、缩略/完整展示切换、详情弹窗
  */
 
 // 配置
@@ -23,7 +23,8 @@ let state = {
     keyword: '',
     sourceFilter: '',
     isLoading: false,
-    viewMode: 'table', // 'table' 或 'card'
+    viewMode: 'table',
+    displayMode: 'compact', // 'compact' 缩略 或 'full' 完整
     isMobile: window.innerWidth <= 768
 };
 
@@ -32,7 +33,6 @@ let elements = {};
 
 // 初始化
 async function init() {
-    // 缓存 DOM 元素
     elements = {
         searchInput: document.getElementById('searchInput'),
         totalCount: document.getElementById('totalCount'),
@@ -43,10 +43,10 @@ async function init() {
         loading: document.getElementById('loading'),
         error: document.getElementById('error'),
         sourceFilter: document.getElementById('sourceFilter'),
-        viewToggle: document.querySelectorAll('.view-toggle button')
+        viewToggle: document.querySelectorAll('.view-toggle button'),
+        displayToggle: document.querySelectorAll('.display-toggle button')
     };
 
-    // 检测移动端
     if (state.isMobile) {
         state.viewMode = 'card';
     }
@@ -56,6 +56,7 @@ async function init() {
     try {
         await loadIndex();
         await loadFirstChunk();
+        filterData(); // 确保初始化时过滤数据
         bindEvents();
         hideLoading();
         render();
@@ -72,7 +73,6 @@ async function loadIndex() {
     if (!response.ok) throw new Error('索引加载失败');
     
     state.indexData = await response.json();
-    
     elements.totalCount.textContent = `共 ${state.indexData.total_count} 条`;
     elements.updateTime.textContent = formatTime(state.indexData.update_time);
 }
@@ -132,15 +132,12 @@ async function preloadNextChunks() {
 
 // 绑定事件
 function bindEvents() {
-    // 搜索按钮
     document.getElementById('searchBtn').addEventListener('click', performSearch);
     
-    // 回车搜索
     elements.searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') performSearch();
     });
     
-    // 清除按钮
     document.getElementById('clearBtn').addEventListener('click', () => {
         elements.searchInput.value = '';
         elements.sourceFilter.value = '';
@@ -151,7 +148,6 @@ function bindEvents() {
         render();
     });
     
-    // 来源筛选
     elements.sourceFilter.addEventListener('change', () => {
         state.sourceFilter = elements.sourceFilter.value;
         state.currentPage = 1;
@@ -159,7 +155,7 @@ function bindEvents() {
         render();
     });
     
-    // 视图切换（仅PC端）
+    // 视图切换
     elements.viewToggle.forEach(btn => {
         btn.addEventListener('click', () => {
             if (state.isMobile) return;
@@ -170,33 +166,42 @@ function bindEvents() {
         });
     });
     
-    // 设置初始视图按钮状态
-    updateViewToggle();
+    // 展示模式切换
+    elements.displayToggle.forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.displayMode = btn.dataset.display;
+            elements.displayToggle.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        });
+    });
     
-    // 窗口大小变化
+    updateToggleButtons();
+    
     window.addEventListener('resize', () => {
         const wasDesktop = !state.isMobile;
         state.isMobile = window.innerWidth <= 768;
         if (wasDesktop !== !state.isMobile) {
-            updateViewToggle();
+            updateToggleButtons();
             if (state.isMobile) state.viewMode = 'card';
             render();
         }
     });
 }
 
-// 更新视图切换按钮状态
-function updateViewToggle() {
+// 更新切换按钮状态
+function updateToggleButtons() {
     if (state.isMobile) {
         elements.viewToggle.forEach(btn => btn.style.display = 'none');
+        elements.displayToggle.forEach(btn => btn.style.display = 'none');
     } else {
         elements.viewToggle.forEach(btn => {
             btn.style.display = '';
-            if (btn.dataset.view === state.viewMode) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            btn.classList.toggle('active', btn.dataset.view === state.viewMode);
+        });
+        elements.displayToggle.forEach(btn => {
+            btn.style.display = '';
+            btn.classList.toggle('active', btn.dataset.display === state.displayMode);
         });
     }
 }
@@ -245,7 +250,7 @@ function renderResultCount() {
     if (state.keyword || state.sourceFilter) {
         elements.resultCount.textContent = `找到 ${filtered} 条结果`;
     } else {
-        elements.resultCount.textContent = `已加载 ${loaded}/${total} 条，点击查看详情`;
+        elements.resultCount.textContent = `已加载 ${loaded}/${total} 条`;
     }
 }
 
@@ -293,14 +298,15 @@ function renderTableView(pageData, start) {
     
     let rows = pageData.map((item, i) => {
         const num = start + i + 1;
-        const problem = truncate(stripImages(item.problem), 80);
-        const solution = truncate(stripImages(item.solution), 80);
+        const isCompact = state.displayMode === 'compact';
+        const problemText = isCompact ? truncate(stripImages(item.problem), 60) : stripImages(item.problem);
+        const solutionText = isCompact ? truncate(stripImages(item.solution), 60) : stripImages(item.solution);
         
         return `
             <div class="table-row" onclick="showDetail(${start + i})">
                 <span class="num">${num}</span>
-                <span class="content problem">${highlightKeyword(escapeHtml(problem))}</span>
-                <span class="content solution">${highlightKeyword(escapeHtml(solution))}</span>
+                <span class="content problem">${highlightKeyword(escapeHtml(problemText))}${isCompact ? '' : ''}</span>
+                <span class="content solution">${highlightKeyword(escapeHtml(solutionText))}</span>
                 <span class="action">详情</span>
             </div>
         `;
@@ -315,7 +321,9 @@ function renderCardView(pageData, start) {
     
     let cards = pageData.map((item, i) => {
         const num = start + i + 1;
-        const preview = truncate(stripImages(item.problem || item.solution), 80);
+        const isCompact = state.displayMode === 'compact';
+        const preview = item.problem || item.solution || '';
+        const displayText = isCompact ? truncate(stripImages(preview), 50) : stripImages(preview);
         
         return `
             <div class="qa-item card" onclick="showDetail(${start + i})">
@@ -324,8 +332,8 @@ function renderCardView(pageData, start) {
                     <span class="source-tag">${escapeHtml(item.source)}</span>
                 </div>
                 <div class="qa-preview">
-                    ${highlightKeyword(escapeHtml(preview))}
-                    <span class="more">...</span>
+                    ${highlightKeyword(escapeHtml(displayText))}
+                    ${isCompact && displayText.length >= 50 ? '<span class="more">...</span>' : ''}
                 </div>
             </div>
         `;
@@ -339,7 +347,6 @@ function showDetail(index) {
     const item = state.filteredData[index];
     if (!item) return;
     
-    // 移除已有的模态框
     const existingModal = document.querySelector('.modal-overlay');
     if (existingModal) existingModal.remove();
     
@@ -370,7 +377,6 @@ function showDetail(index) {
     
     document.body.appendChild(modal);
     
-    // ESC 关闭
     const handleEsc = (e) => {
         if (e.key === 'Escape') {
             modal.remove();
@@ -380,19 +386,17 @@ function showDetail(index) {
     document.addEventListener('keydown', handleEsc);
 }
 
-// 处理内容（高亮 + 图片）
+// 处理内容
 function processContent(text) {
     if (!text) return '<span style="color:#94a3b8">无</span>';
     
     let processed = escapeHtml(text);
     
-    // 处理图片
     processed = processed.replace(
         /!\[图片\]\(([^)]+)\)/g,
         '<img src="$1" alt="图片" class="qa-image" onclick="showImageModal(this)" loading="lazy" onerror="this.style.display=\'none\'" />'
     );
     
-    // 高亮关键词
     if (state.keyword) {
         const regex = new RegExp(`(${escapeRegex(state.keyword)})`, 'gi');
         processed = processed.replace(regex, '<span class="highlight">$1</span>');
@@ -473,9 +477,7 @@ async function goToPage(page) {
     state.currentPage = page;
     render();
     
-    // 滚动到顶部
-    const container = document.querySelector('.container');
-    container.scrollIntoView({ behavior: 'smooth' });
+    document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
 }
 
 // 显示图片模态框

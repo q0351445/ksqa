@@ -161,7 +161,8 @@ body {
 }
 
 /* 视图切换 */
-.view-toggle {
+.view-toggle,
+.display-toggle {
     display: flex;
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -169,7 +170,8 @@ body {
     overflow: hidden;
 }
 
-.view-toggle button {
+.view-toggle button,
+.display-toggle button {
     padding: 10px 16px;
     border: none;
     background: transparent;
@@ -179,11 +181,13 @@ body {
     transition: all 0.2s;
 }
 
-.view-toggle button:hover {
+.view-toggle button:hover,
+.display-toggle button:hover {
     background: #f1f5f9;
 }
 
-.view-toggle button.active {
+.view-toggle button.active,
+.display-toggle button.active {
     background: var(--primary);
     color: white;
 }
@@ -307,9 +311,11 @@ body {
 
 .qa-list.table-view .table-row .content {
     display: -webkit-box;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .qa-list.table-view .table-row .action {
