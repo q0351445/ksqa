@@ -9,3 +9,6 @@ Thumbs.db
 # 临时文件
 *.log
 *.tmp
+
+# 本地脚本（不提交）
+push_to_github.bat
