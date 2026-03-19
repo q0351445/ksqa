@@ -3,33 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日常运维QA搜索</title>
+    <title>运维知识库</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
         <!-- 头部 -->
         <header class="header">
-            <h1>🔍 日常运维QA搜索</h1>
-            <div class="stats">
-                <span id="totalCount">加载中...</span>
-                <span id="updateTime"></span>
+            <div class="header-top">
+                <h1>运维知识库</h1>
+                <div class="header-stats">
+                    <span id="totalCount">加载中...</span>
+                    <span id="updateTime"></span>
+                </div>
             </div>
         </header>
 
-        <!-- 搜索栏 -->
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="输入关键字搜索（问题描述、解决方法）..." />
-            <button id="searchBtn">搜索</button>
-            <button id="clearBtn">清除</button>
-        </div>
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <!-- 搜索栏 -->
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索问题描述或解决方法...">
+                <button class="btn-search" id="searchBtn">搜索</button>
+                <button class="btn-clear" id="clearBtn">重置</button>
+            </div>
 
-        <!-- 来源筛选 -->
-        <div class="filter-box">
-            <label>数据来源：</label>
-            <select id="sourceFilter">
-                <option value="">全部</option>
-            </select>
+            <!-- 来源筛选 -->
+            <div class="filter-box">
+                <label>来源</label>
+                <select id="sourceFilter">
+                    <option value="">全部来源</option>
+                </select>
+            </div>
+
+            <!-- 视图切换 -->
+            <div class="view-toggle">
+                <button data-view="table" class="active">表格</button>
+                <button data-view="card">卡片</button>
+            </div>
         </div>
 
         <!-- 结果统计 -->
@@ -43,20 +54,18 @@
         </div>
 
         <!-- 分页 -->
-        <div class="pagination" id="pagination">
-            <!-- 分页将通过JS动态生成 -->
-        </div>
+        <div class="pagination" id="pagination"></div>
 
         <!-- 加载状态 -->
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <span>加载中...</span>
+            <span class="loading-text">加载中...</span>
         </div>
 
         <!-- 错误提示 -->
         <div class="error" id="error" style="display: none;">
             <p>数据加载失败，请刷新页面重试</p>
-            <button onclick="location.reload()">刷新</button>
+            <button onclick="location.reload()">刷新页面</button>
         </div>
     </div>
 

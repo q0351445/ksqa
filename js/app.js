@@ -1,6 +1,6 @@
 /**
- * 日常运维QA搜索系统 - 前端逻辑（分片加载版）
- * 功能：先加载索引和第一个分片，然后按需加载其他分片
+ * 日常运维QA搜索系统 - 前端逻辑 v2.0
+ * 功能：分片加载、表格/卡片双视图、详情弹窗
  */
 
 // 配置
@@ -8,7 +8,7 @@ const CONFIG = {
     indexUrl: 'data/index.json',
     chunkSize: 500,
     pageSize: 20,
-    preloadChunks: 2  // 预加载的分片数量
+    preloadChunks: 2
 };
 
 // 状态
@@ -22,35 +22,43 @@ let state = {
     sources: [],
     keyword: '',
     sourceFilter: '',
-    isLoading: false
+    isLoading: false,
+    viewMode: 'table', // 'table' 或 'card'
+    isMobile: window.innerWidth <= 768
 };
 
-// DOM 元素
-const elements = {
-    searchInput: document.getElementById('searchInput'),
-    searchBtn: document.getElementById('searchBtn'),
-    clearBtn: document.getElementById('clearBtn'),
-    sourceFilter: document.getElementById('sourceFilter'),
-    totalCount: document.getElementById('totalCount'),
-    updateTime: document.getElementById('updateTime'),
-    resultCount: document.getElementById('resultCount'),
-    qaList: document.getElementById('qaList'),
-    pagination: document.getElementById('pagination'),
-    loading: document.getElementById('loading'),
-    error: document.getElementById('error')
-};
+// DOM 元素缓存
+let elements = {};
 
 // 初始化
 async function init() {
-    showLoading('正在加载索引...');
+    // 缓存 DOM 元素
+    elements = {
+        searchInput: document.getElementById('searchInput'),
+        totalCount: document.getElementById('totalCount'),
+        updateTime: document.getElementById('updateTime'),
+        resultCount: document.getElementById('resultCount'),
+        qaList: document.getElementById('qaList'),
+        pagination: document.getElementById('pagination'),
+        loading: document.getElementById('loading'),
+        error: document.getElementById('error'),
+        sourceFilter: document.getElementById('sourceFilter'),
+        viewToggle: document.querySelectorAll('.view-toggle button')
+    };
+
+    // 检测移动端
+    if (state.isMobile) {
+        state.viewMode = 'card';
+    }
+
+    showLoading('正在加载数据...');
+    
     try {
         await loadIndex();
         await loadFirstChunk();
         bindEvents();
         hideLoading();
         render();
-        
-        // 后台预加载下一批分片
         preloadNextChunks();
     } catch (err) {
         showError();
@@ -61,16 +69,12 @@ async function init() {
 // 加载索引
 async function loadIndex() {
     const response = await fetch(CONFIG.indexUrl);
-    if (!response.ok) {
-        throw new Error('索引加载失败');
-    }
+    if (!response.ok) throw new Error('索引加载失败');
+    
     state.indexData = await response.json();
     
-    // 更新统计显示
-    elements.totalCount.textContent = `共 ${state.indexData.total_count} 条记录`;
-    elements.updateTime.textContent = `更新时间: ${formatTime(state.indexData.update_time)}`;
-    
-    // 提取来源（需要等待数据加载）
+    elements.totalCount.textContent = `共 ${state.indexData.total_count} 条`;
+    elements.updateTime.textContent = formatTime(state.indexData.update_time);
 }
 
 // 加载第一个分片
@@ -78,53 +82,37 @@ async function loadFirstChunk() {
     if (!state.indexData || state.indexData.chunks.length === 0) {
         throw new Error('没有分片数据');
     }
-    
-    const firstChunk = state.indexData.chunks[0];
-    await loadChunk(firstChunk);
+    await loadChunk(state.indexData.chunks[0]);
 }
 
 // 加载指定分片
 async function loadChunk(chunkInfo) {
-    if (state.loadedChunks.has(chunkInfo.index)) {
-        return; // 已加载
-    }
+    if (state.loadedChunks.has(chunkInfo.index)) return;
     
     const response = await fetch('data/' + chunkInfo.file);
-    if (!response.ok) {
-        throw new Error(`分片 ${chunkInfo.index} 加载失败`);
-    }
+    if (!response.ok) throw new Error(`分片 ${chunkInfo.index} 加载失败`);
     
     const chunkData = await response.json();
-    
-    // 按顺序插入数据
     const start = chunkInfo.index * CONFIG.chunkSize;
     const newItems = chunkData.data || [];
     
-    // 确保数组足够大
     while (state.allData.length < start) {
         state.allData.push(null);
     }
     
-    // 插入数据
     newItems.forEach((item, i) => {
         state.allData[start + i] = item;
     });
     
     state.loadedChunks.add(chunkInfo.index);
-    
-    // 更新来源列表
     updateSources();
-    
-    console.log(`已加载分片 ${chunkInfo.index}，共 ${state.loadedChunks.size}/${state.indexData.chunk_count} 个分片`);
 }
 
 // 更新来源列表
 function updateSources() {
     state.sources = [...new Set(state.allData.filter(d => d).map(item => item.source))];
-    
-    // 更新来源筛选下拉框
     const currentValue = elements.sourceFilter.value;
-    elements.sourceFilter.innerHTML = '<option value="">全部</option>' +
+    elements.sourceFilter.innerHTML = '<option value="">全部来源</option>' + 
         state.sources.map(s => `<option value="${s}">${s}</option>`).join('');
     elements.sourceFilter.value = currentValue;
 }
@@ -144,23 +132,16 @@ async function preloadNextChunks() {
 
 // 绑定事件
 function bindEvents() {
-    // 搜索
-    elements.searchBtn.addEventListener('click', () => {
-        state.keyword = elements.searchInput.value.trim();
-        state.currentPage = 1;
-        filterData();
-        render();
-    });
+    // 搜索按钮
+    document.getElementById('searchBtn').addEventListener('click', performSearch);
     
     // 回车搜索
     elements.searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            elements.searchBtn.click();
-        }
+        if (e.key === 'Enter') performSearch();
     });
     
-    // 清除
-    elements.clearBtn.addEventListener('click', () => {
+    // 清除按钮
+    document.getElementById('clearBtn').addEventListener('click', () => {
         elements.searchInput.value = '';
         elements.sourceFilter.value = '';
         state.keyword = '';
@@ -178,31 +159,68 @@ function bindEvents() {
         render();
     });
     
-    // 滚动到分页时加载更多分片
-    window.addEventListener('scroll', () => {
-        if (state.isLoading) return;
-        
-        const scrollPercent = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
-        if (scrollPercent > 0.7) {
-            preloadNextChunks();
+    // 视图切换（仅PC端）
+    elements.viewToggle.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (state.isMobile) return;
+            state.viewMode = btn.dataset.view;
+            elements.viewToggle.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        });
+    });
+    
+    // 设置初始视图按钮状态
+    updateViewToggle();
+    
+    // 窗口大小变化
+    window.addEventListener('resize', () => {
+        const wasDesktop = !state.isMobile;
+        state.isMobile = window.innerWidth <= 768;
+        if (wasDesktop !== !state.isMobile) {
+            updateViewToggle();
+            if (state.isMobile) state.viewMode = 'card';
+            render();
         }
     });
+}
+
+// 更新视图切换按钮状态
+function updateViewToggle() {
+    if (state.isMobile) {
+        elements.viewToggle.forEach(btn => btn.style.display = 'none');
+    } else {
+        elements.viewToggle.forEach(btn => {
+            btn.style.display = '';
+            if (btn.dataset.view === state.viewMode) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+}
+
+// 执行搜索
+function performSearch() {
+    state.keyword = elements.searchInput.value.trim();
+    state.currentPage = 1;
+    filterData();
+    render();
 }
 
 // 过滤数据
 function filterData() {
     let data = state.allData.filter(d => d);
     
-    // 关键字过滤
     if (state.keyword) {
         const keyword = state.keyword.toLowerCase();
-        data = data.filter(item =>
+        data = data.filter(item => 
             (item.problem && item.problem.toLowerCase().includes(keyword)) ||
             (item.solution && item.solution.toLowerCase().includes(keyword))
         );
     }
     
-    // 来源过滤
     if (state.sourceFilter) {
         data = data.filter(item => item.source === state.sourceFilter);
     }
@@ -225,9 +243,9 @@ function renderResultCount() {
     const filtered = state.filteredData.length;
     
     if (state.keyword || state.sourceFilter) {
-        elements.resultCount.textContent = `找到 ${filtered} 条结果（共 ${total} 条）`;
+        elements.resultCount.textContent = `找到 ${filtered} 条结果`;
     } else {
-        elements.resultCount.textContent = `已加载 ${loaded}/${total} 条`;
+        elements.resultCount.textContent = `已加载 ${loaded}/${total} 条，点击查看详情`;
     }
 }
 
@@ -238,84 +256,168 @@ function renderList() {
     const pageData = state.filteredData.slice(start, end);
     
     if (pageData.length === 0) {
-        elements.qaList.innerHTML = `
-            <div class="empty-state">
-                <div class="icon">🔍</div>
-                <p>没有找到相关记录</p>
-            </div>
-        `;
+        renderEmptyState();
         return;
     }
     
-    elements.qaList.innerHTML = pageData.map((item, index) => 
-        renderQAItem(item, start + index + 1)
-    ).join('');
-    
-    // 检查是否需要加载更多分片
-    checkAndLoadMoreChunks(start);
-}
-
-// 检查并加载更多分片
-async function checkAndLoadMoreChunks(currentStart) {
-    const currentChunkIndex = Math.floor(currentStart / CONFIG.chunkSize);
-    const totalChunks = state.indexData.chunk_count;
-    
-    // 如果当前页接近已加载数据的末尾，加载下一分片
-    if (currentStart + CONFIG.pageSize > state.allData.filter(d => d).length - 50) {
-        const nextChunkIndex = currentChunkIndex + 1;
-        if (nextChunkIndex < totalChunks && !state.loadedChunks.has(nextChunkIndex)) {
-            const chunkInfo = state.indexData.chunks[nextChunkIndex];
-            if (chunkInfo) {
-                state.isLoading = true;
-                await loadChunk(chunkInfo);
-                state.isLoading = false;
-                // 重新过滤和渲染
-                filterData();
-                render();
-            }
-        }
+    if (state.viewMode === 'table' && !state.isMobile) {
+        renderTableView(pageData, start);
+    } else {
+        renderCardView(pageData, start);
     }
 }
 
-// 渲染单条QA
-function renderQAItem(item, num) {
-    const processContent = (text) => {
-        if (!text) return '无';
+// 渲染空状态
+function renderEmptyState() {
+    elements.qaList.className = 'qa-list cards';
+    elements.qaList.innerHTML = `
+        <div class="empty-state">
+            <div class="icon">📭</div>
+            <p>暂无数据</p>
+        </div>
+    `;
+}
+
+// 渲染表格视图
+function renderTableView(pageData, start) {
+    elements.qaList.className = 'qa-list table-view';
+    
+    let header = `
+        <div class="table-header">
+            <span>序号</span>
+            <span>问题描述</span>
+            <span>解决方法</span>
+            <span>操作</span>
+        </div>
+    `;
+    
+    let rows = pageData.map((item, i) => {
+        const num = start + i + 1;
+        const problem = truncate(stripImages(item.problem), 80);
+        const solution = truncate(stripImages(item.solution), 80);
         
-        let processed = escapeHtml(text);
+        return `
+            <div class="table-row" onclick="showDetail(${start + i})">
+                <span class="num">${num}</span>
+                <span class="content problem">${highlightKeyword(escapeHtml(problem))}</span>
+                <span class="content solution">${highlightKeyword(escapeHtml(solution))}</span>
+                <span class="action">详情</span>
+            </div>
+        `;
+    }).join('');
+    
+    elements.qaList.innerHTML = header + rows;
+}
+
+// 渲染卡片视图
+function renderCardView(pageData, start) {
+    elements.qaList.className = 'qa-list cards';
+    
+    let cards = pageData.map((item, i) => {
+        const num = start + i + 1;
+        const preview = truncate(stripImages(item.problem || item.solution), 80);
         
-        if (state.keyword) {
-            const regex = new RegExp(`(${escapeRegex(state.keyword)})`, 'gi');
-            processed = processed.replace(regex, '<span class="highlight">$1</span>');
-        }
-        
-        // 处理图片
-        processed = processed.replace(
-            /!\[图片\]\(([^)]+)\)/g,
-            '<img src="$1" alt="图片" class="qa-image" onclick="showImageModal(this)" loading="lazy" onerror="this.style.display=\'none\'" />'
-        );
-        
-        return processed;
+        return `
+            <div class="qa-item card" onclick="showDetail(${start + i})">
+                <div class="qa-header">
+                    <span class="qa-number">#${num}</span>
+                    <span class="source-tag">${escapeHtml(item.source)}</span>
+                </div>
+                <div class="qa-preview">
+                    ${highlightKeyword(escapeHtml(preview))}
+                    <span class="more">...</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    elements.qaList.innerHTML = cards;
+}
+
+// 显示详情弹窗
+function showDetail(index) {
+    const item = state.filteredData[index];
+    if (!item) return;
+    
+    // 移除已有的模态框
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) existingModal.remove();
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
     };
     
-    return `
-        <div class="qa-item">
-            <div class="qa-header">
-                <span class="qa-number">#${num}</span>
-                <span class="source">${escapeHtml(item.source)}</span>
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>#${index + 1} - ${escapeHtml(item.source)}</h3>
+                <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
             </div>
-            <div class="qa-body">
-                <div class="field problem">
-                    <div class="field-label">📝 问题描述</div>
-                    <div class="field-content">${processContent(item.problem)}</div>
+            <div class="modal-body">
+                <div class="detail-section problem">
+                    <div class="section-label">问题描述</div>
+                    <div class="section-content">${processContent(item.problem)}</div>
                 </div>
-                <div class="field solution">
-                    <div class="field-label">✅ 解决方法</div>
-                    <div class="field-content">${processContent(item.solution)}</div>
+                <div class="detail-section solution">
+                    <div class="section-label">解决方法</div>
+                    <div class="section-content">${processContent(item.solution)}</div>
                 </div>
             </div>
         </div>
     `;
+    
+    document.body.appendChild(modal);
+    
+    // ESC 关闭
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
+}
+
+// 处理内容（高亮 + 图片）
+function processContent(text) {
+    if (!text) return '<span style="color:#94a3b8">无</span>';
+    
+    let processed = escapeHtml(text);
+    
+    // 处理图片
+    processed = processed.replace(
+        /!\[图片\]\(([^)]+)\)/g,
+        '<img src="$1" alt="图片" class="qa-image" onclick="showImageModal(this)" loading="lazy" onerror="this.style.display=\'none\'" />'
+    );
+    
+    // 高亮关键词
+    if (state.keyword) {
+        const regex = new RegExp(`(${escapeRegex(state.keyword)})`, 'gi');
+        processed = processed.replace(regex, '<span class="highlight">$1</span>');
+    }
+    
+    return processed;
+}
+
+// 高亮关键词
+function highlightKeyword(text) {
+    if (!state.keyword) return text;
+    const regex = new RegExp(`(${escapeRegex(state.keyword)})`, 'gi');
+    return text.replace(regex, '<span class="highlight">$1</span>');
+}
+
+// 去除图片标记
+function stripImages(text) {
+    if (!text) return '';
+    return text.replace(/!\[图片\]\([^)]+\)/g, '[图片]');
+}
+
+// 截断文本
+function truncate(text, length) {
+    if (!text) return '';
+    return text.length > length ? text.substring(0, length) : text;
 }
 
 // 渲染分页
@@ -325,12 +427,8 @@ function renderPagination() {
         return;
     }
     
-    let html = '';
+    let html = `<button ${state.currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${state.currentPage - 1})">‹</button>`;
     
-    // 上一页
-    html += `<button ${state.currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${state.currentPage - 1})">上一页</button>`;
-    
-    // 页码
     const maxButtons = 5;
     let startPage = Math.max(1, state.currentPage - Math.floor(maxButtons / 2));
     let endPage = Math.min(state.totalPages, startPage + maxButtons - 1);
@@ -341,9 +439,7 @@ function renderPagination() {
     
     if (startPage > 1) {
         html += `<button onclick="goToPage(1)">1</button>`;
-        if (startPage > 2) {
-            html += `<span class="page-info">...</span>`;
-        }
+        if (startPage > 2) html += `<span class="page-info">...</span>`;
     }
     
     for (let i = startPage; i <= endPage; i++) {
@@ -351,14 +447,11 @@ function renderPagination() {
     }
     
     if (endPage < state.totalPages) {
-        if (endPage < state.totalPages - 1) {
-            html += `<span class="page-info">...</span>`;
-        }
+        if (endPage < state.totalPages - 1) html += `<span class="page-info">...</span>`;
         html += `<button onclick="goToPage(${state.totalPages})">${state.totalPages}</button>`;
     }
     
-    // 下一页
-    html += `<button ${state.currentPage === state.totalPages ? 'disabled' : ''} onclick="goToPage(${state.currentPage + 1})">下一页</button>`;
+    html += `<button ${state.currentPage === state.totalPages ? 'disabled' : ''} onclick="goToPage(${state.currentPage + 1})">›</button>`;
     
     elements.pagination.innerHTML = html;
 }
@@ -367,28 +460,53 @@ function renderPagination() {
 async function goToPage(page) {
     if (page < 1 || page > state.totalPages) return;
     
-    // 检查目标页的数据是否已加载
     const targetStart = (page - 1) * CONFIG.pageSize;
     const targetChunk = Math.floor(targetStart / CONFIG.chunkSize);
     
     if (!state.loadedChunks.has(targetChunk)) {
         showLoading('正在加载数据...');
-        const chunkInfo = state.indexData.chunks[targetChunk];
-        await loadChunk(chunkInfo);
+        await loadChunk(state.indexData.chunks[targetChunk]);
         filterData();
         hideLoading();
     }
     
     state.currentPage = page;
     render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // 滚动到顶部
+    const container = document.querySelector('.container');
+    container.scrollIntoView({ behavior: 'smooth' });
+}
+
+// 显示图片模态框
+function showImageModal(img) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.onclick = () => modal.remove();
+    
+    modal.innerHTML = `
+        <div class="image-modal-content">
+            <img src="${img.src}" alt="${img.alt}">
+            <span class="image-modal-close">×</span>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
 }
 
 // 显示加载状态
 function showLoading(message = '加载中...') {
     elements.loading.innerHTML = `
         <div class="spinner"></div>
-        <span>${message}</span>
+        <span class="loading-text">${message}</span>
     `;
     elements.loading.style.display = 'block';
 }
@@ -408,7 +526,12 @@ function showError() {
 function formatTime(isoString) {
     try {
         const date = new Date(isoString);
-        return date.toLocaleString('zh-CN');
+        return date.toLocaleString('zh-CN', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     } catch {
         return isoString;
     }
@@ -427,38 +550,10 @@ function escapeRegex(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// 显示图片模态框
-function showImageModal(img) {
-    const modal = document.createElement('div');
-    modal.className = 'image-modal';
-    modal.onclick = () => modal.remove();
-    
-    const container = document.createElement('div');
-    container.className = 'image-modal-content';
-    container.onclick = (e) => e.stopPropagation();
-    
-    const bigImg = document.createElement('img');
-    bigImg.src = img.src;
-    bigImg.alt = img.alt;
-    
-    const closeBtn = document.createElement('span');
-    closeBtn.className = 'image-modal-close';
-    closeBtn.innerHTML = '&times;';
-    closeBtn.onclick = () => modal.remove();
-    
-    container.appendChild(bigImg);
-    container.appendChild(closeBtn);
-    modal.appendChild(container);
-    document.body.appendChild(modal);
-    
-    const handleEsc = (e) => {
-        if (e.key === 'Escape') {
-            modal.remove();
-            document.removeEventListener('keydown', handleEsc);
-        }
-    };
-    document.addEventListener('keydown', handleEsc);
-}
+// 全局函数
+window.showDetail = showDetail;
+window.goToPage = goToPage;
+window.showImageModal = showImageModal;
 
 // 启动
 init();
