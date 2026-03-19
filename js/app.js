@@ -1,22 +1,28 @@
 /**
- * 日常运维QA搜索系统 - 前端逻辑
+ * 日常运维QA搜索系统 - 前端逻辑（分片加载版）
+ * 功能：先加载索引和第一个分片，然后按需加载其他分片
  */
 
 // 配置
 const CONFIG = {
-    dataUrl: 'data/qa_data.json',
-    pageSize: 20
+    indexUrl: 'data/index.json',
+    chunkSize: 500,
+    pageSize: 20,
+    preloadChunks: 2  // 预加载的分片数量
 };
 
 // 状态
 let state = {
+    indexData: null,
     allData: [],
     filteredData: [],
+    loadedChunks: new Set(),
     currentPage: 1,
     totalPages: 0,
     sources: [],
     keyword: '',
-    sourceFilter: ''
+    sourceFilter: '',
+    isLoading: false
 };
 
 // DOM 元素
@@ -36,49 +42,104 @@ const elements = {
 
 // 初始化
 async function init() {
-    showLoading();
-    
+    showLoading('正在加载索引...');
     try {
-        // 加载数据
-        await loadData();
-        
-        // 绑定事件
+        await loadIndex();
+        await loadFirstChunk();
         bindEvents();
-        
-        // 隐藏加载状态
         hideLoading();
-        
-        // 渲染
         render();
+        
+        // 后台预加载下一批分片
+        preloadNextChunks();
     } catch (err) {
         showError();
         console.error('初始化失败:', err);
     }
 }
 
-// 加载数据
-async function loadData() {
-    const response = await fetch(CONFIG.dataUrl);
+// 加载索引
+async function loadIndex() {
+    const response = await fetch(CONFIG.indexUrl);
     if (!response.ok) {
-        throw new Error('数据加载失败');
+        throw new Error('索引加载失败');
+    }
+    state.indexData = await response.json();
+    
+    // 更新统计显示
+    elements.totalCount.textContent = `共 ${state.indexData.total_count} 条记录`;
+    elements.updateTime.textContent = `更新时间: ${formatTime(state.indexData.update_time)}`;
+    
+    // 提取来源（需要等待数据加载）
+}
+
+// 加载第一个分片
+async function loadFirstChunk() {
+    if (!state.indexData || state.indexData.chunks.length === 0) {
+        throw new Error('没有分片数据');
     }
     
-    const data = await response.json();
-    state.allData = data.data || [];
+    const firstChunk = state.indexData.chunks[0];
+    await loadChunk(firstChunk);
+}
+
+// 加载指定分片
+async function loadChunk(chunkInfo) {
+    if (state.loadedChunks.has(chunkInfo.index)) {
+        return; // 已加载
+    }
     
-    // 提取唯一来源
-    state.sources = [...new Set(state.allData.map(item => item.source))];
+    const response = await fetch('data/' + chunkInfo.file);
+    if (!response.ok) {
+        throw new Error(`分片 ${chunkInfo.index} 加载失败`);
+    }
     
-    // 更新统计
-    elements.totalCount.textContent = `共 ${data.total_count} 条记录`;
-    elements.updateTime.textContent = `更新时间: ${formatTime(data.update_time)}`;
+    const chunkData = await response.json();
     
-    // 填充来源筛选
+    // 按顺序插入数据
+    const start = chunkInfo.index * CONFIG.chunkSize;
+    const newItems = chunkData.data || [];
+    
+    // 确保数组足够大
+    while (state.allData.length < start) {
+        state.allData.push(null);
+    }
+    
+    // 插入数据
+    newItems.forEach((item, i) => {
+        state.allData[start + i] = item;
+    });
+    
+    state.loadedChunks.add(chunkInfo.index);
+    
+    // 更新来源列表
+    updateSources();
+    
+    console.log(`已加载分片 ${chunkInfo.index}，共 ${state.loadedChunks.size}/${state.indexData.chunk_count} 个分片`);
+}
+
+// 更新来源列表
+function updateSources() {
+    state.sources = [...new Set(state.allData.filter(d => d).map(item => item.source))];
+    
+    // 更新来源筛选下拉框
+    const currentValue = elements.sourceFilter.value;
     elements.sourceFilter.innerHTML = '<option value="">全部</option>' +
         state.sources.map(s => `<option value="${s}">${s}</option>`).join('');
+    elements.sourceFilter.value = currentValue;
+}
+
+// 预加载下一批分片
+async function preloadNextChunks() {
+    const loadedCount = state.loadedChunks.size;
+    const totalChunks = state.indexData.chunk_count;
     
-    // 初始化过滤数据
-    state.filteredData = [...state.allData];
+    for (let i = loadedCount; i < Math.min(loadedCount + CONFIG.preloadChunks, totalChunks); i++) {
+        const chunkInfo = state.indexData.chunks[i];
+        if (chunkInfo && !state.loadedChunks.has(chunkInfo.index)) {
+            loadChunk(chunkInfo).catch(err => console.warn('预加载失败:', err));
+        }
+    }
 }
 
 // 绑定事件
@@ -116,17 +177,26 @@ function bindEvents() {
         filterData();
         render();
     });
+    
+    // 滚动到分页时加载更多分片
+    window.addEventListener('scroll', () => {
+        if (state.isLoading) return;
+        
+        const scrollPercent = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+        if (scrollPercent > 0.7) {
+            preloadNextChunks();
+        }
+    });
 }
 
 // 过滤数据
 function filterData() {
-    let data = [...state.allData];
+    let data = state.allData.filter(d => d);
     
     // 关键字过滤
     if (state.keyword) {
         const keyword = state.keyword.toLowerCase();
-        data = data.filter(item => 
-            (item.customer && item.customer.toLowerCase().includes(keyword)) ||
+        data = data.filter(item =>
             (item.problem && item.problem.toLowerCase().includes(keyword)) ||
             (item.solution && item.solution.toLowerCase().includes(keyword))
         );
@@ -150,13 +220,14 @@ function render() {
 
 // 渲染结果统计
 function renderResultCount() {
-    const total = state.allData.length;
+    const total = state.indexData.total_count;
+    const loaded = state.allData.filter(d => d).length;
     const filtered = state.filteredData.length;
     
     if (state.keyword || state.sourceFilter) {
         elements.resultCount.textContent = `找到 ${filtered} 条结果（共 ${total} 条）`;
     } else {
-        elements.resultCount.textContent = `共 ${total} 条记录`;
+        elements.resultCount.textContent = `已加载 ${loaded}/${total} 条`;
     }
 }
 
@@ -176,31 +247,71 @@ function renderList() {
         return;
     }
     
-    elements.qaList.innerHTML = pageData.map(item => renderQAItem(item)).join('');
+    elements.qaList.innerHTML = pageData.map((item, index) => 
+        renderQAItem(item, start + index + 1)
+    ).join('');
+    
+    // 检查是否需要加载更多分片
+    checkAndLoadMoreChunks(start);
+}
+
+// 检查并加载更多分片
+async function checkAndLoadMoreChunks(currentStart) {
+    const currentChunkIndex = Math.floor(currentStart / CONFIG.chunkSize);
+    const totalChunks = state.indexData.chunk_count;
+    
+    // 如果当前页接近已加载数据的末尾，加载下一分片
+    if (currentStart + CONFIG.pageSize > state.allData.filter(d => d).length - 50) {
+        const nextChunkIndex = currentChunkIndex + 1;
+        if (nextChunkIndex < totalChunks && !state.loadedChunks.has(nextChunkIndex)) {
+            const chunkInfo = state.indexData.chunks[nextChunkIndex];
+            if (chunkInfo) {
+                state.isLoading = true;
+                await loadChunk(chunkInfo);
+                state.isLoading = false;
+                // 重新过滤和渲染
+                filterData();
+                render();
+            }
+        }
+    }
 }
 
 // 渲染单条QA
-function renderQAItem(item) {
-    const highlightKeyword = (text) => {
-        if (!state.keyword || !text) return escapeHtml(text);
-        const regex = new RegExp(`(${escapeRegex(state.keyword)})`, 'gi');
-        return escapeHtml(text).replace(regex, '<span class="highlight">$1</span>');
+function renderQAItem(item, num) {
+    const processContent = (text) => {
+        if (!text) return '无';
+        
+        let processed = escapeHtml(text);
+        
+        if (state.keyword) {
+            const regex = new RegExp(`(${escapeRegex(state.keyword)})`, 'gi');
+            processed = processed.replace(regex, '<span class="highlight">$1</span>');
+        }
+        
+        // 处理图片
+        processed = processed.replace(
+            /!\[图片\]\(([^)]+)\)/g,
+            '<img src="$1" alt="图片" class="qa-image" onclick="showImageModal(this)" loading="lazy" onerror="this.style.display=\'none\'" />'
+        );
+        
+        return processed;
     };
     
     return `
         <div class="qa-item">
             <div class="qa-header">
-                <div class="customer">${highlightKeyword(item.customer)}</div>
+                <span class="qa-number">#${num}</span>
                 <span class="source">${escapeHtml(item.source)}</span>
             </div>
             <div class="qa-body">
                 <div class="field problem">
-                    <div class="field-label">问题描述</div>
-                    <div class="field-content">${highlightKeyword(item.problem) || '无'}</div>
+                    <div class="field-label">📝 问题描述</div>
+                    <div class="field-content">${processContent(item.problem)}</div>
                 </div>
                 <div class="field solution">
-                    <div class="field-label">解决方法</div>
-                    <div class="field-content">${highlightKeyword(item.solution) || '无'}</div>
+                    <div class="field-label">✅ 解决方法</div>
+                    <div class="field-content">${processContent(item.solution)}</div>
                 </div>
             </div>
         </div>
@@ -253,20 +364,33 @@ function renderPagination() {
 }
 
 // 跳转页面
-function goToPage(page) {
+async function goToPage(page) {
     if (page < 1 || page > state.totalPages) return;
+    
+    // 检查目标页的数据是否已加载
+    const targetStart = (page - 1) * CONFIG.pageSize;
+    const targetChunk = Math.floor(targetStart / CONFIG.chunkSize);
+    
+    if (!state.loadedChunks.has(targetChunk)) {
+        showLoading('正在加载数据...');
+        const chunkInfo = state.indexData.chunks[targetChunk];
+        await loadChunk(chunkInfo);
+        filterData();
+        hideLoading();
+    }
+    
     state.currentPage = page;
     render();
-    
-    // 滚动到顶部
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // 显示加载状态
-function showLoading() {
+function showLoading(message = '加载中...') {
+    elements.loading.innerHTML = `
+        <div class="spinner"></div>
+        <span>${message}</span>
+    `;
     elements.loading.style.display = 'block';
-    elements.qaList.innerHTML = '';
-    elements.pagination.innerHTML = '';
 }
 
 // 隐藏加载状态
@@ -301,6 +425,39 @@ function escapeHtml(text) {
 // 正则转义
 function escapeRegex(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// 显示图片模态框
+function showImageModal(img) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.onclick = () => modal.remove();
+    
+    const container = document.createElement('div');
+    container.className = 'image-modal-content';
+    container.onclick = (e) => e.stopPropagation();
+    
+    const bigImg = document.createElement('img');
+    bigImg.src = img.src;
+    bigImg.alt = img.alt;
+    
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'image-modal-close';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = () => modal.remove();
+    
+    container.appendChild(bigImg);
+    container.appendChild(closeBtn);
+    modal.appendChild(container);
+    document.body.appendChild(modal);
+    
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
 }
 
 // 启动
