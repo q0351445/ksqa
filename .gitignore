@@ -12,3 +12,16 @@ Thumbs.db
 
 # 本地脚本（不提交）
 push_to_github.bat
+
+# 开发文件（不提交）
+js/app.js.full
+js/app_chunked.js
+
+# 截图
+*.png
+
+# Python 脚本（开发用）
+*.py
+*.bat
+*.ps1
+*.md
