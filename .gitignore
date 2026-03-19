@@ -14,14 +14,14 @@ Thumbs.db
 push_to_github.bat
 
 # 开发文件（不提交）
-js/app.js.full
-js/app_chunked.js
-
-# 截图
-*.png
-
-# Python 脚本（开发用）
 *.py
 *.bat
 *.ps1
+
+# 截图和文档
+*.png
 *.md
+
+# 开发用JS文件
+js/app.js.full
+js/app_chunked.js

@@ -24,7 +24,7 @@ let state = {
     sourceFilter: '',
     isLoading: false,
     viewMode: 'table',
-    displayMode: 'compact', // 'compact' 缩略 或 'full' 完整
+    displayMode: 'compact',
     isMobile: window.innerWidth <= 768
 };
 
@@ -56,7 +56,7 @@ async function init() {
     try {
         await loadIndex();
         await loadFirstChunk();
-        filterData(); // 确保初始化时过滤数据
+        filterData();
         bindEvents();
         hideLoading();
         render();
