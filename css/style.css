@@ -605,6 +605,137 @@ body {
     opacity: 0.5;
 }
 
+/* 数据源统计 */
+.source-stats {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.stats-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stats-total {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.stats-items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stats-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stats-item-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}
+
+.source-name {
+    color: var(--text-primary);
+}
+
+.source-count {
+    color: var(--text-secondary);
+}
+
+.progress-bar {
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.stats-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+}
+
+.btn-primary {
+    padding: 12px 24px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.stats-hint {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* 加载进度 */
+.loading-progress {
+    text-align: center;
+    padding: 20px;
+}
+
+.progress-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.progress-bar-container {
+    max-width: 300px;
+    margin: 0 auto 12px;
+}
+
+.progress-num {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* 搜索中状态 */
+.searching {
+    color: var(--primary);
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 /* 响应式 - 手机端 */
 @media (max-width: 768px) {
     .container {
