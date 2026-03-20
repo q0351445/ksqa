@@ -73,7 +73,7 @@
     {
       "id": 512,
       "problem": "仿真系统资金结算失败：插入历史换汇额度表失败",
-      "solution": "可能是存在一些客户，盈利币种既设了美元又设了人民币，可以用如下语句查询：SELECT * FROM cust_profit_currency WHERE cust_no IN (SELECT b.cust_no FROM (SELECT a.cust_no,a.currency_code FROM cust_profit_currency aGROUP BY a.cust_no,a.currency_code) b  group BY b.cust_no HAVING count(b.cust_no) &gt; 1) 查出来有的话，修改后即可，盈利币种都设成同一类。",
+      "solution": "可能是存在一些客户，盈利币种既设了美元又设了人民币，可以用如下语句查询：SELECT * FROM cust_profit_currency WHERE cust_no IN (SELECT b.cust_no FROM (SELECT a.cust_no,a.currency_code FROM cust_profit_currency aGROUP BY a.cust_no,a.currency_code) b  group BY b.cust_no HAVING count(b.cust_no) > 1) 查出来有的话，修改后即可，盈利币种都设成同一类。",
       "source": "日常运维QA（已满）"
     },
     {
@@ -91,7 +91,7 @@
     {
       "id": 515,
       "problem": "点金手2.0上显示的大连组合合约行情中的买卖量与交易员上显示的不一致。",
-      "solution": "交易员上显示的大连组合合约的行情中的买卖量会重新计算，而点金手2.0目前是直接从网关上取到行情直接进行展示，所以会出现不同的情况。交易员上买卖量的相关计算公式：1、组合买价、买量推导的算法：设：买价差 = 腿1买价 - 腿2卖价if 交易所组合行情中的组合买价 &gt; 买价差{组合推导买价 = 交易所组合行情的买价组合推导买量 = 交易所组合行情的买量}else if 交易所组合行情中的组合买价 &lt; 买价差{组合推导买价 = 买价差组合推导买量 = min(腿1买量，腿2卖量)}else{组合推导买价 = 买价差组合推导买量 = min(腿1买量，腿2卖量) + 交易所组合行情的买量}2、组合卖价、卖量推导的算法：设：卖价差 = 腿1卖价 - 腿2买价if 交易所组合行情中的组合卖价 &lt; 卖价差{组合推导卖价 = 交易所组合行情的卖价组合推导卖量 = 交易所组合行情的卖量}else if 交易所组合行情中的组合卖价 &gt; 卖价差{组合推导卖价 = 卖价差组合推导卖量 = min(腿1卖量，腿2买量)}else{组合推导卖价 = 卖价差组合推导卖量 = min(腿1卖量，腿2买量) + 交易所组合行情的卖量}",
+      "solution": "交易员上显示的大连组合合约的行情中的买卖量会重新计算，而点金手2.0目前是直接从网关上取到行情直接进行展示，所以会出现不同的情况。交易员上买卖量的相关计算公式：1、组合买价、买量推导的算法：设：买价差 = 腿1买价 - 腿2卖价if 交易所组合行情中的组合买价 > 买价差{组合推导买价 = 交易所组合行情的买价组合推导买量 = 交易所组合行情的买量}else if 交易所组合行情中的组合买价 {组合推导买价 = 买价差组合推导买量 = min(腿1买量，腿2卖量)}else{组合推导买价 = 买价差组合推导买量 = min(腿1买量，腿2卖量) + 交易所组合行情的买量}2、组合卖价、卖量推导的算法：设：卖价差 = 腿1卖价 - 腿2买价if 交易所组合行情中的组合卖价 {组合推导卖价 = 交易所组合行情的卖价组合推导卖量 = 交易所组合行情的卖量}else if 交易所组合行情中的组合卖价 > 卖价差{组合推导卖价 = 卖价差组合推导卖量 = min(腿1卖量，腿2买量)}else{组合推导卖价 = 卖价差组合推导卖量 = min(腿1卖量，腿2买量) + 交易所组合行情的卖量}",
       "source": "日常运维QA（已满）"
     },
     {
@@ -156,92 +156,92 @@
     },
     {
       "id": 526,
-      "problem": "11月06号做了一把密钥同步，之后签到超时，原因是密钥同步后写不进系统，提示writePINK失败，密钥同步失败。",
-      "solution": "经排查，目前一线通所在机器的用户为普通用户，非administrator用户，对.0.SYS，.1.SYS，.2.SYS，.3.SYS等文件没有写权限，所以密钥同步失败。\n对这些文件增加写权限后，同步就成功了，进而签到也成功了。\n文件属性→安全里进行设置",
+      "problem": "大商所国债冲抵业务",
+      "solution": "大商所国债冲抵业务是客户使用国债的债券来期货系统内冲抵保证金的业务，需要在V6S系统的设置质押品种增加相关质押品信息，其中质押品代码需填写为对应国债的债券代码，如199929/150003/160014/130025/090030/180025（其他未到期的国债代码均可）等，质押品名称需填写为记账式国债，其他的诸如质押结算价、质押折扣率、价格浮动范围，填入不为0的值即可。设置完后再导入交易所提供的分项资金文件即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 527,
-      "problem": "仿真系统资金结算失败：插入历史换汇额度表失败",
-      "solution": "可能是存在一些客户，盈利币种既设了美元又设了人民币，可以用如下语句查询：SELECT * FROM cust_profit_currency WHERE cust_no IN (SELECT b.cust_no FROM (SELECT a.cust_no,a.currency_code FROM cust_profit_currency aGROUP BY a.cust_no,a.currency_code) b  group BY b.cust_no HAVING count(b.cust_no) &gt; 1) 查出来有的话，修改后即可，盈利币种都设成同一类。",
+      "problem": "狗头监控上显示，推送总线待处理数过高，呈报警状态。",
+      "solution": "推送总线的这个待处理数不是真的待处理数，其待处理数，会随着委托数，越来越大。把推送总线的报警阀值改成0，去掉推送总线待处理的报警。推送总线的待处理数机制比较特殊，与其他总线不一样。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 528,
-      "problem": "客户委托挂单保证金与客户实时资金中的冻结保证金显示不一致。",
-      "solution": "原因有2。1、V6S系统上场给V8T的SC2011的最后交易日不正确，这事情的原因，是由于能源交易所的TAS合约与标的期货合约的最后交易日不一致，而V6T无法正确处理TAS相关业务，导致V6T在更新SC2011的最后交易日时，误将SC2011TAS的最后交易日更新给了SC2011，由于***是先回导的V8T，再回导的V6T，则导致了V6T错误的最后交易日覆盖了V8T的最后交易日，从而原来应该参与大单边优惠的SC2011变成了不参与大单边优惠。而当天又正好没有客户持有双边持仓触发大单边，所以***没有对错误的SC2011最后交易日调整正确，所以上场给了V8T错误的最后交易日。2、V8T收到V6S提供的最后交易日，即SC2011不参与大单边，故在优惠规则相关的表里没有对应的信息，而通过报盘收到了合约更新成了正确的最后交易日后，V8T发现这个合约应该是要优惠的，于是在优惠规则的表中补录了一条数据，又由于结算数据给的不优惠，导致补录数据时，保证金及优惠标记相关字段有误。于是客户在进行SC2011合约开平仓时，系统在计算保证金时就会产生较大的误差。要避免这个问题，代码上不太好改，还是需要让客户如果还有V6T交易的话，先回导V6T再回导V8T，且在结算时如发现最后交易日有误时（通常之后进入交割月的合约可能会引起这个问题），需及时修改。",
+      "problem": "盘中，成交股指期货时，申报费没有体现？",
+      "solution": "后询问开发，委托或成交时申报费都不体现，没有这个申报费数值。是资金权益中扣掉了这笔申报费。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 529,
-      "problem": "从bankcomm版本升级到bccbu模式的直连银期接口后，签到签不上。",
-      "solution": "①首先确认建行的bank.ini中的EXTER_LISTEN_ENDPOINT后面的侦听端口，需要与原bankcomm的config.ini中的LISTENPORT配置一致，同时其IP地址需要为银行可以访问得到期货公司的对公地址。②另外需要确保各个bcc接口的ksmbcc.ini中的功能号BASEFUNCNO配置不重复，目前已用的银期功能号可以通过查V6S后台表bank_func获取，如果配置的一样则有可能会造成在银期监控上签到后，界面签到刷屏的情况。③新部署银期接口的服务器需要安装vcredist_x86.exe，否则可能会导致bcc开不起来或者bcc开起来以后bu无法正常运行的情况。",
+      "problem": "当天***黄金期权行权，证监会报送文件“期权行权明细文件”报送失败。",
+      "solution": "经确认，“期权行权明细文件”报送失败，其原因是由于缺少流水号字段，而此流水号字段是通过交易所当天提供的的“期权执行与履约文件“导入到柜台管理系统里的，查看”柜台管理-期权执行履约单查询“界面查询出来该客户的交易所执行序号为乱码，后台execute_result表对应该字段exch_execute_no 为NULL,最终排查下来是由于***期货”期权执行文件dbf导入临时表”p852500版本过老，写入file_execute_result表失败，相关字段是在6926升级包里p852500里增加的，但***期货该SP是6926版本之前的，导致该字段没法通过临时表写入到execute_result表，出现上述报送问题。随后重刷p852500，数据恢复正常，报送成功。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 530,
-      "problem": "点金手2.0上显示的大连组合合约行情中的买卖量与交易员上显示的不一致。",
-      "solution": "交易员上显示的大连组合合约的行情中的买卖量会重新计算，而点金手2.0目前是直接从网关上取到行情直接进行展示，所以会出现不同的情况。交易员上买卖量的相关计算公式：1、组合买价、买量推导的算法：设：买价差 = 腿1买价 - 腿2卖价if 交易所组合行情中的组合买价 &gt; 买价差{组合推导买价 = 交易所组合行情的买价组合推导买量 = 交易所组合行情的买量}else if 交易所组合行情中的组合买价 &lt; 买价差{组合推导买价 = 买价差组合推导买量 = min(腿1买量，腿2卖量)}else{组合推导买价 = 买价差组合推导买量 = min(腿1买量，腿2卖量) + 交易所组合行情的买量}2、组合卖价、卖量推导的算法：设：卖价差 = 腿1卖价 - 腿2买价if 交易所组合行情中的组合卖价 &lt; 卖价差{组合推导卖价 = 交易所组合行情的卖价组合推导卖量 = 交易所组合行情的卖量}else if 交易所组合行情中的组合卖价 &gt; 卖价差{组合推导卖价 = 卖价差组合推导卖量 = min(腿1卖量，腿2买量)}else{组合推导卖价 = 卖价差组合推导卖量 = min(腿1卖量，腿2买量) + 交易所组合行情的卖量}",
+      "problem": "仿真系统通过TMC停数据库时，提示ORA-10097:another startup/shutdown operation of this instance inprogress;ORA-09967:unable to create or open lock file;Linux-x86_64 Error:28:No space left on device。无法正常访问和关停oracle数据库。",
+      "solution": "根据报错信息“No space left on device”，分别使用df -h和df -i检查系统占用情况。df -h是检查磁盘容量，df -i是检查系统被占用的inode号。这次的问题用df -h会发现空间并没有被占用满，但是用df -i会发现inode号被占满了。通过for i in / * /; do echo $i; find $i | wc -l; done可以从/目录开始逐层目录检查哪个目录下面的文件最多，占用inode号最多。这次的问题是/app/sungard/oracle/oradiag_tds目录中的文件数过多导致的问题，可以cd到该目录对文件进行选择性删除，删除后问题解决。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 531,
-      "problem": "客户使用客户端进行云开户时，提示“调用三方柜台接口执行错误：For iuput string“” ”。从tomcat接口上来看，接口上已经收到了开户请求，但是柜台没有给应答。",
-      "solution": "经过排查，发现859744（验证开户身份证信息）传参不符合接口传参，导致后台应答失败。具体原因是数据库里的sp859744已经更新到了61005-27，但是appserver里的function接口没有更新。",
+      "problem": "云五期测试新开户，云开户系统上填完资料后，退回主界面使用身份证号登录时提示【柜台：柜台校验客户不存在】",
+      "solution": "该报错是由p859737报的，原因是该客户在金仕达系统中未进行复核。客户在柜台复核该客户资料时提示【30002：保证金模板总表记录不存在】，这个报错是p859556调用p851348时提示的，原理是当传入的客户类（新开客户时，用的是pre_cust_app表中的cust_class）在class_margin_template表中有对应记录（会逐级向上级类进行匹配），但是对应的template_no在margin_template_list表中不存在。原则上正式系统不会出现这个问题，在删除保证金率模板的时候会校验客户类和模板默认对应关系的，故判断仅在测试环境会有此问题，可以通过删除class_margin_template表中template_no在margin_template_list表中不存在的记录即可。语句如下：delete from class_margin_template where template_no NOT in (SELECT template_no FROM margin_template_list)",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 532,
-      "problem": "云四期开户后编码无法正常回推给云开户中心，检查tomcat发现如下配置ERROR 2020-09-02 09:25:00,158 - com.kingstar.futures.adapter.PushMarketCodeJob 47 - Push error with {scust_no2=68000021, sdate0=20200831, scust_auth= , scusttypes=开通成功, sholder_type=1, scust_type=1, vsvarstr0=04638369,D, ,20200831|04763559,S, ,20200831|36723940,Z, ,20200831|, ssectypes=周章喜, sstatus2=1, sstatus1=1, scert_no=431127199110076012}net.sf.json.JSONException: null object\tat net.sf.json.JSONObject.verifyIsNull(JSONObject.java:2744)\tat net.sf.json.JSONObject.get(JSONObject.java:1957)\tat com.kingstar.futures.adapter.PushMarketCodeJob.pushOne(PushMarketCodeJob.java from InputFileObject:125)\tat com.kingstar.futures.adapter.PushMarketCodeJob.execute(PushMarketCodeJob.java from InputFileObject:45)\tat org.quartz.core.JobRunShell.run(JobRunShell.java:223)\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:549)推测是tomcat升级问题，让客户重新升级tomcat后有如下提示ERROR 2020-09-03 00:15:00,001 - com.kingstar.futures.adapter.PushMarketCodeJob 54 -  四期 PushMarketCodeJob errorjava.lang.NullPointerException\tat com.kingstar.ngbf.s.cpack.biz.CpackUtil.requestList(CpackUtil.java:285)\tat com.kingstar.futures.adapter.PushMarketCodeJob.execute(PushMarketCodeJob.java from InputFileObject:36)\tat org.quartz.core.JobRunShell.run(JobRunShell.java:223)\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:549)",
-      "solution": "最终确定其后一次升级tomcat后，将ngbf-spring-ext.properties文件中四期的柜台云开户接口功能号注释掉导致了问题描述中的后一个报错，去掉注释后问题解决。",
+      "problem": "升级完61005-10后，进行统一开户上报时，在电子上报查询界面看到有相关报错：生成XML文件失败：Value &quot;C&quot; for attribute risk_bearing_capacity of person_info is not among the enumerated set",
+      "solution": "在排除枚举文件和dtd文件在柜台和统一开户电子接口上没有问题之后，拿到客户的统一开户电子接口klg日志，其中859568请求包中，评测风险等级字段没有值，看了下后台的cust_appropriate_assessment表中，风险评测等级是有值的，随意怀疑是脚本内未正确取出这个值的原因。根据859568内调的elec_open_account_deal脚本中的修改记录来看，增加了cert_type、cert_no、cust_type的判断，而在cust_appropriate_assessment表中cust_type的字段值为空，故而无法根据((a.cust_type <> '5' and d.cust_type = '1') or (a.cust_type = '5' and d.cust_type = '2'))的代码逻辑取出相关的数据，根据pre_cffe_cust_basic表中cust_type的值将cust_appropriate_assessment表中cust_type的值update为cust_typeupdate为‘1’，即可解决。这个问题是由于客户在升级前开的户，在升级后进行上报引起的。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 533,
-      "problem": "V8T行权相关开始结束时间参数现在是否有效。",
-      "solution": "目前仅BATCH_STARTTIME-客户提交批量行权开始时间有效，时间小于该设置值时，客户可以通过终端发起指令行权，时间大于该设置值时，仅能通过批量行权进行上报。其他的BATCH_ENDTIME-客户提交批量行权结束时间、EXECBEGINTIME-行权开始时间和EXECENDTIME-行权结束时间目前均已失效。",
+      "problem": "在V6S的*作日志管理里，查到有客户登录V6T的网关，但是系统里没有这个客户号信息。",
+      "solution": "客户登录失败857000中会记录客户登录失败后的日志信息，所以会导致客户输错客户号进行登录时，*作日志表中会记录系统中没有的客户号记录。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 534,
-      "problem": "V8T初始化时数据转换步骤出错",
-      "solution": "在确定V6S导过来的结算数据没有问题的情况下，一般这种状况发生在仿真系统使用正式系统数据的场景下，很有可能是oracle的process值设小了。",
+      "problem": "新开客户首次登陆客户端没有提示客户修改密码。",
+      "solution": "客户端在发起857000请求时会受到后台是否要客户端弹出修改密码的应答，应答就在857000的cpacke包里的scust_no2字段。scust_no2字段是后台的密码重置标志标识pwd_reset_flag。中投天琪是在盘中的时候开的新客户，同步到v8t内存库，但是tt_cust_info里的pwd_reset_flag字段是为空的，目前程序就是这样的。所以盘中同步到v8t的客户，客户端登录的时候不提示修改密码。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 535,
-      "problem": "申请一个基金产品户交易编码时，受益人（即份额持有人）为一家机构，但是目前贵公司的金仕达V6S柜台份额持有人”证件类型“选项中没有”营业执照”这一选项，而监控中心那边只认”营业执照“这一选项，因而申请编码时一直报错提示”份额持有人证件类型不正确“。",
-      "solution": "“证件类型”是读取的枚举文件id_type，自从国内统一采取三证合一了之后，营业执照是包含在统一社会信用代码中，如果需要填营业执照，选择枚举值52-统一社会信用代码即可，如果客户下拉框里没有52选项，可以更新一下枚举文件。",
+      "problem": "再做历史数据分发的时候提示 bcp_in  deliv 出错！从日志中并未发现详细报错。单独bcp deliv表，发现报错。报错原因是 execution of default deliv_frz_qt_180800641 failed because of parsingthe source text in syscomments during upgrade. please  drop and recreate dbo.deliv_frz_qt_180800641.",
+      "solution": "从报错信息中可以看出来 这个deliv_frz_qt_180800641字段有问题，可以通过语句查一下。SELECT * FROM sysobjectsWHERE name = 'deliv_frz_qt_1808006441'SELECT * FROM syscommentsWHERE id = 1808006441查完之后，发现该字段的default属性里多了一个 ‘n’. 这就是导入失败的原因。没有别的办法了，只能删表重新建了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 536,
-      "problem": "8月查ecosign查不到7月16号-30号历史转账记录。网关上历史查询天数设置的是30天，网关上出入金查询的功能号路由也配置了。",
-      "solution": "v6s没加这个周边网关*作员，加上后就查询到了",
+      "problem": "客户在做初始化的时候报错显示的是：Message number: 21, Severity 21, State 1, Line 111. Procedure 'init_trade_table.'WARNING - Fatal Error 644 occurred at Apr 11 2014 10:22PM.  Please note the error and time, and contact a user with System Administrator (SA) authorization.",
+      "solution": "遇到这种644的错误是客户的表索引页损坏，可以在sybase的日志里看到相关表报错，将此表的索引删除后，重建就可以解决。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 537,
-      "problem": "***所报盘正常退出后，***所*作员仍存在于*作员会话里，需要强制录出？",
-      "solution": "经排查，发现这么一个问题，*作员代码超过8个字符就会出现这个问题。",
+      "problem": "V8T-I的客户登录穿透式信息没有同步到V8T里面，交易通道日志上面有319500912的错误码",
+      "solution": "319500912的错误含义是主系统里面没有找到该交易通道的*作员。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 538,
-      "problem": "报盘*作员代码不能超过九位，不然登录时会有问题，提示*作员密码不正确",
-      "solution": "提BUG",
+      "problem": "V8T交易参数COMB_DISCOUNT是否启用组合优惠，对于风险试算以及手工试算大连六期组合业务的影响。",
+      "solution": "目前COMB_DISCOUNT开启后，61004对大连六期组合（STD/STG/SPL/SFO）业务进行了支持。其中STD和STG两腿军事期权，均是卖方向，保证金取大的一腿保证金+另一腿权利金，类同保证金算法7；STO（腿一期权，腿二期货），保证金为期货保证金+权利金，类似保证金算法8、9；SPL同SPC组合策略保证金算法，类似保证金算法1，两腿期货保证金取大。要符合上述判断，还需要交易参数IF_COMB_TRIAL组合仓参与手工试算方式设置为1，看作组合仓。若设置成0，则进行手工试算时，会视作普通仓，从而多计算保证金。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 539,
-      "problem": "风控门户核心启动时提示创建锁失败",
-      "solution": "oracle库没起",
+      "problem": "***期权品种HO下单，V6T提示查询标的物上日结算价失败，V8T提示期权对应的期货合约不存在。",
+      "solution": "由于品种设置时，其保证金算法设置的是保证金算法三，所以在计算保证金等逻辑时会用到其标的物期货合约，因为HO没有对应的标的物期货合约，所以会有上述报错。需要将其保证金算法设置为保证金算法二，这样第二天初始化数据上场后，问题就解决了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 540,
-      "problem": "econsign上显示的各个交易所时间算法",
-      "solution": "1、econsgin显示的时间，是终端登录后，调用后台的854046查询席位时差，根据返回的各席位时差，与本地时间相加，得到相应的交易所时间，然后显示在界面上；2、柜台的席位时差由报盘写入，写入逻辑为：席位时差 =（登录柜台时柜台返回的系统时间 —  报盘机器系统时间） — （登录交易所时返回的交易所时间 — 报盘机器系统时间）；第二点中“登录柜台时柜台返回的系统时间”在V8T中为门户服务器时间。由于门户服务器为双活模式，报盘登录时会登录到门户1或者门户2上，所以需保证门户服务器时间一致，避免出现不同交易所显示时间差距较大的情况",
+      "problem": "证监会报送合并客户交易终端采集信息功能，对合并的文件名有无要求？",
+      "solution": "指定路径下的多个文件需要符合以下规则，文件最右侧需要以形式命名“clientinfo”+报送年月日+“.txt”，原公司期货公司统一标识处，可以任意命名。如161clientinfo20190507.txt，ctp_161clientinfo20190507.txt，hs_161clientinfo20190507.txt等若是命名为161clientinfo20190507_ctp.txt，则无法进行合并。",
       "source": "日常运维QA（已满）"
     },
     {
@@ -336,92 +336,92 @@
     },
     {
       "id": 556,
-      "problem": "在作V8T交易初始化的时候，获取结算文件成功后，提示“清除过期表sp执行失败”。",
-      "solution": "没有个股的V8T是没有清除过期表的sp的，但是***的v8t是有的。遇到这样的问题，凭借实施的经验来看，很有可能是oracle的进程占用过多，可以修改一下最大进程数来解决这个问题。（用sysdba用户进数据库，查看命令是show parameter processes）。如何修改可以百度一下。***的最大进程数原来是150，现在改成1500。重启数据库后，再做初始化，没再报错。",
+      "problem": "交易结算网关配置了连接2个通讯平台，当配置在上面的A通讯平台断开后，交易结算网关业务处理出现异常，并且无法自动切换到B通讯平台，重启后也无法避开故障通讯平台，只有修改配置，把A通讯平台删掉后重启才能正常。",
+      "solution": "交易结算网关配置中的可以配置多个通讯平台是个假象，只有配置在最上面的生效。（这条有待商榷，何志腾自己吃不准，但是据他说测试说支持的）",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 557,
-      "problem": "交叉汇率期货导致保证金和盈亏对不上。1月7日交易的，但是7号结算价和成交价相等，8号结算价和7号结算价相等，所以盈亏都是0，但是仿真他们不去对保证金，就没发现问题，9号才发现盈亏不对",
-      "solution": "跟交易所对比了盈亏和保证金，发现刚好都是没有乘以汇率，然后去后台cust_done表发现上日折算汇率exch_rate_lt和今日折算汇率exch_rate都是0，最初以为是当天结算完了才增加的结算汇率就后台修改了下折算汇率然后结算7号，数据对上了，但是8和9的还是对不上，发现cust_hold里面的两个折算汇率也是0，最终发现是因为他们设置交易品种里面的报价单位quoted_price_unit设置的是1人民币，外汇期货应该是2美元，修改之后重新结算就对上了",
+      "problem": "成交写库上期所部分成交被平转开",
+      "solution": "最终查下来发现是成交写库上期所区分平今仓没有勾选，但是之前为什么不勾选也不会有问题也就不去追究了，毕竟这个功能开发已经不会去修改了。。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 558,
-      "problem": "app上bu处理功能号的优先级如何识别",
-      "solution": "在functions.lst中，如下两个功能号856039|&quot;发布信息&quot;|qhdev_group|2|Y|0|0|0|0|0854060|&quot;设置交易席位状态&quot;|qhdev_group|1|Y|0|0|0|0|0一个是优先级为1， 一个优先级2，1为最高优先级",
+      "problem": "交易员品种价位查询不受参数PZJWCXJG控制，交易所返回频繁查询的错误信息",
+      "solution": "p854053里面确实有对PZJWCXJG的校验，可以看下variety_nice_price_req表中的status，如果status变成1也就是已经收到交易所回报，此时是可以再次发送的。这个参数并不是为了流控而设计的，而是为了系统的正常运行，防止有部分查询请求没有收到回报而无法再次发送，不能依据参数的表面意思去揣测而走弯路。。。。（修改日期：   20061124 * 修改人员：   施延黎 * 修改描述：   解决当接口无返回时同样的远程品种价位查询不再推送问题，改为根据参数决定是否要再次发起查询 * 备注信息     6.4.0.1）",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 559,
-      "problem": "econsign行情显示今结算价是什么，还不停的变化，点金手里面这个今结就是0，当交易所推送结算价的时候才会有数值",
-      "solution": "2个客户端行情在盘中都是收的推送来的行情～行情推送中，对于“今结算价”这个字段，行情服务器在结算前传的是当日均价的值，结算后传的是今结算价的值。点金手2.0连的是API，API接口中今结算价和当日均价是2个不同的字段，所以API中对其进行了处理，2个字段分别单独赋值，所以客户端中就显示为客户所见的样子。econsign中只显示了“今结算价”，没有单独显示“当日均价”这个字段，所以没进行额外的处理，直接显示了～",
+      "problem": "农行银期测试，期货端发起转账报错‘系统出错：推送*作员不可以为空’",
+      "solution": "这个报错是P858544报的，他们家用的是农行bankcomm接口，不需要推送，银行参数设置里面把TS参数改成N解决",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 560,
-      "problem": "如果个股在没有做初始化的情况下进行了一段时间交易，在中午节收盘时间做初始化以后可以补收交易所回报么？",
-      "solution": "可以通过删除接口上的local文件进行重收，也可以在报盘上点击“从0开始获取”来进行重收。（具体文件名和菜单名称待确定）",
+      "problem": "初始化报错：procedure 'p854199'  TRUNCATE TABLE command not allowed within multi-statement transaction",
+      "solution": "要看报错的是哪个库，也可以sp_helpdb看各个库status，有没有ddl in tran属性，没有的就在master库里执行下列语句sp_dboption 库名,&quot;ddl in tran&quot;,&quot;true&quot;  然后执行了哪个库再去哪个库里执行下checkpiont就ok了",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 561,
-      "problem": "在做数据抽取的时候，提示“错误：23012，当前正在执行数据抽取*作，请稍候再*作”",
-      "solution": "调整下参数设置‘DATAGAIN’为0即可",
+      "problem": "insert的时候报错2\tError (7743) An explicit value for the identity field in table 'entrust_maxno' can only be specified in an insert statement when a field list is used.",
+      "solution": "有自增长列不能跨度插入，可以执行set identity_insert 表名 on就可以插入了，做好了记得改回去off",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 562,
-      "problem": "初始化日切失败。",
-      "solution": "用tools_main下的change_ini.sh脚本进行日期修改：[root@localhost tools_main]# sh change_ini.sh 20181128 20181129 /v8t[root@localhost tools_main]#更改之后，可以用下面的命令查询一下，是否全部修改完成。[root@localhost ~]# find /v8t -name &quot;*.ini&quot;|xargs grep -i -w date之后直接把进程拉起来就可以继续*作了但是如果时间来得及，由于是正式系统，建议客户按重复初始化流程做.",
+      "problem": "报盘报错查询合约信息【首包】失败，登录初始化失败",
+      "solution": "黄总说最早设计的时候就是这样，要先去柜台里设置交易合约增加一个当前交易所的合约，查到合约才能往下进行。***这次柜台里有合约，从报盘日志看854044包里面的内容传的交易所代码是E，而柜台里是B，修改配置后ok",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 563,
-      "problem": "升级完8503后开启网关提示“数据字典条目中不存在词典代码允许网关接入的最低版本”",
-      "solution": "做V8T的初始化即可。",
+      "problem": "系统中，客户密码落库时如何做到的加密和解密？",
+      "solution": "declare @passwd nvarchar(8)select @passwd = '34555'//加密exec p850010 @passwd output , 1select @passwd//解密exec p850010 @passwd output , -1select @passwd",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 564,
-      "problem": "证监会数据报送提示报送终止执行存储过程错误：Server message：Message number:208,Severity 16,Satae 1,Line 111,Procedure 'p853113.'#temp_zjh_kh_yhzh not found.……",
-      "solution": "可能是sybase给编译失效了，重刷这个sp即可解决（当前最新的版本应该是在6924里）",
+      "problem": "郑州交易所导入席位保证金文件，设置结算参数IMPORTEXMR设置成1，导入席位保证金。导入文件之后，在席位保证金界面，查询到导入后的结果与文件中的一致，并不是以席位保证金界面设置的值为基础而算出来的差值。",
+      "solution": "确认下来，该功能就是交易所文件值是多少，系统就导入多少。所以需要使用这个功能，需要将席位保证金中的设置都设置为0。另外该功能还会对客户席位保证金率进行调整，所以在设置客户保证金率时，需要将客户保证金率中包含的席位保证金率剔除。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 565,
-      "problem": "TMC备份提示sudo /v8t/tools_main/backup_main_TMC.sh find：路径必须在表达式之前",
-      "solution": "Dos2unix一下这个文件",
+      "problem": "app开启时提示nohup: redirecting stderr to stdout",
+      "solution": "这个是正常的，可以不用理会",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 566,
-      "problem": "V8T升级完，初始化后客户登录提示客户会话不一致，客户无法正常登录。",
-      "solution": "应急的话，用内存库修改工具删门户内存库的Ttaccountlogin和Ttcustsession数据，然后删除物理库tt_account_login和tt_cust_session，再允许客户进行接入即可。也可以在升级前做如下*作，避免事后删内存库数据。1、做完v6s回导后，升级之前，把物理库两张表删除。\tdelete from tt_account_login;\tcommit;\tdelete from tt_cust_session;\tcommit;2、在升级8503p1后，会在/v8t/portal1/protal1/data_pump/output产生20100127的文件夹用portal1用户登录修改成当天日期201811283、执行scp -r 20181128 tr_fs@ip地址:/v8t/tr_fs/v8t/init_data4、用tr_fs用户登录后删除/v8t/tr_fs/v8t/init_data/backup下面所有的东西5、分别用删除当日门户总线数据\t用ptmq_a用户登录后删除\t/ptmq_a_dat/0001/20181128\trm -rf /ptmq_a_dat/0001/20181128\t用ptmq_b用户登录后删除\t/ptmq_b_dat/0002/20181128\trm -rf /ptmq_b_dat/0002/201811286、启动v8t程序做20181129的初始化",
+      "problem": "v6t风控服务器启动不了，也不提示信息，看日志bcc拉起几次bu之后就显示bcc退出",
+      "solution": "重启服务器依旧不行，清共享内存也搞不定，最后从数据库把风控*作员t掉再启动就ok了",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 567,
-      "problem": "升级8503和p1之后tmc启动备节点乱码，命令行里全是问号，通过后台启动交易核心b起来后几秒钟就会自动退出，而且后台命令打印日志也很奇怪，不停刷新不停跳动",
-      "solution": "排查下来是trade_b下面/v8t/trade_b/trade_b/xquery_bu/bin下面的xquery_bu在升级上传的时候可能有点问题导致文件损坏，把主节点的scp过来之后就好了",
+      "problem": "1、61004要升级后再结算，涉及到组合数据的变动2、导交易所成交文件成交表、期权执行表、保证金参数表不用动，套利组合勾选项选择优惠组合持仓明细表，持仓明细表可要可不要，还有一个保证金优惠参数表放在文件夹下会自动导进去",
+      "solution": "更新下，导交易所成交文件套利组合可勾可不勾",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 568,
-      "problem": "升级8503后风控多了个强平标准，这个标准线在哪设置，是什么意思？",
-      "solution": "在柜台设置，现在强平标准分为公司标准、交易所标准和自定义标准，前两个是把相应的风险度1或者2通过强平降到柜台设置的正常线以下，而自定义标准是将公司标准，也就是风险度1降到自己设置的线以下",
+      "problem": "客户资金对账按随机阶段查询，勾阶段统计，填客户号和不填客户号查出来的客户手续费对不上",
+      "solution": "查询限制的条数限制会导致查询时输出的条数不全从而出现该现象",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 569,
-      "problem": "生成阶段结算单的时候报错，结算单未生成。",
-      "solution": "通过柜台查询该阶段的结算单，均已生成过。查询历史截库时间发现，客户查询的结算单数据都已经放到历史库里了，所以导致阶段结算单生成时报错。",
+      "problem": "同步程序同步报错，如果跳过报错这条记录",
+      "solution": "在同步数据来源的real_sync_jour表里面删除对应的流水号记录",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 570,
-      "problem": "升级后8503多个个仲裁B,之前用单仲裁的可以不用管，另外升级后如果报错“数据字典条目中不存在词典代码允许接入的最低版本”或者TMC可用性检测过不去",
-      "solution": "初始化！初始化解决一切疑难杂症！8503可能修改的东西比较多，初始化更新数据后一切正常",
+      "problem": "客户进行期权卖方委托开仓挂单，冻结的保证金中，关于权利金部分的计算规则是什么？",
+      "solution": "在保证金算法三种，权利金的算法是X*合约乘数*委托手数，X的取值规则由上到下优先级排列如下    1、先取上日结算价    settle_price表中的settle_price字段    2、取行情中昨结    new_price表中的yest_settle_price字段    3、取挂牌价    trade_contract表中的ref_price字段    4、取最新价    new_price表中的new_price字段    如果上面4个值都取不到，则报错“查询期权合约上日结算价失败”",
       "source": "日常运维QA（已满）"
     },
     {
@@ -703,7 +703,7 @@
     {
       "id": 617,
       "problem": "在互联网开户默认设置界面，点击***营业部下拉菜单弹出报错“*作错误：CBN_KILLFOCUS Items.Count = 0 时Text一定为空。（D:\\DelphiSourceCode\\SourceCode\\MyLib\\UIncrementComboBox.pas,line 169）”",
-      "solution": "该柜台没有client-management.dtd和enumerate.xml，从统一开户电子接口上拷贝到柜台bin目录下就可以了。后经过顾晓翔模拟客户场景发现，应该是***营业部输入项默认了text值&lt;***营业部&gt;，后续前台把这个text值去掉，就不会出现这种现象。QC号26056",
+      "solution": "该柜台没有client-management.dtd和enumerate.xml，从统一开户电子接口上拷贝到柜台bin目录下就可以了。后经过顾晓翔模拟客户场景发现，应该是***营业部输入项默认了text值，后续前台把这个text值去掉，就不会出现这种现象。QC号26056",
       "source": "日常运维QA（已满）"
     },
     {
@@ -786,92 +786,92 @@
     },
     {
       "id": 631,
-      "problem": "启V8T环境时，某节点报创建锁失败可能原因：启环境时，后台有当前用户的共享内存",
-      "solution": "清共享内存：如 ：1、查看下交易总线的共享内存情况：ipcs -m | grep trmq_a2、清除共享内存*作：使用root用户登录，在tools_main路径下执行ipcrmall_user trmq_a  若该方法依然不行，就需要reboot该环境了。",
+      "problem": "柜台开销户查询界面查询出来某客户的开户日期是20170829，销户日期是20180209；但是在当前库后台cust_whole里面查出来的开户日期是20180719，销户日期是20180723；而且在历史库后台查询cust_whole表，开户日期是20170828,销户日期是20180829；为什么三个地方的开销户日期都对不上？",
+      "solution": "其实当前库cust_whole里面查询出来的开销户日期是正确的 ~~1.通过柜台查询数据不正确，是因为他的查询条件结束日期是20180114，所以查询不到后面重新销户恢复的的开销户日期；2.历史库查询cust_whole数据不正确，是因为当前库里面的数据，还没有分发到历史库  ；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 632,
-      "problem": "启V8T环境时，某节点报创建锁失败可能原因：启环境时，后台有进程未停",
-      "solution": "停V8T环境所有进程，重启",
+      "problem": "在互联网开户默认设置界面，点击***营业部下拉菜单弹出报错“*作错误：CBN_KILLFOCUS Items.Count = 0 时Text一定为空。（D:\\DelphiSourceCode\\SourceCode\\MyLib\\UIncrementComboBox.pas,line 169）”",
+      "solution": "该柜台没有client-management.dtd和enumerate.xml，从统一开户电子接口上拷贝到柜台bin目录下就可以了。后经过顾晓翔模拟客户场景发现，应该是***营业部输入项默认了text值，后续前台把这个text值去掉，就不会出现这种现象。QC号26056",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 633,
-      "problem": "用trade_a做data_pump导出txt文件报错原因：用户所属于组异常，如重装oracle后",
-      "solution": "改用户所属组：usermod -a -G oinstall trade_a",
+      "problem": "更换了机房和服务器后，***银期bccbu模式签到提示接收银行应答超时。",
+      "solution": "客户原来的softenc.dll是2014年的，这个是旧版本，但是由于昨天客户在签到***银行时，bankbu_ceb.exe程序报错，夜班同事陈伟给了一个2015年版本的，而这跟客户当前的版本不匹配导致的，另外在更换了运行环境后，确保程序和之前正常运行的程序一致，然后需要进行密钥同步，才能进行签到。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 634,
-      "problem": "TMC各节点检测正常都绿色，但客户端（如交管管理）登陆报错：插件初始化错误：【系统启动失败】取基础数据异常TMC主备检验发现总线反演一直未结束。",
-      "solution": "多等待几分钟等总线反演结束。或者停V8T删除总线，datapump做下一日初始化后重启v8t",
+      "problem": "初始化第三步，加载数据到内存库失败",
+      "solution": "用tr_mng用户登录后台查看日志，明显报错内存库太小不够用，config 下的load_table.ini中mem_size大小配置为1500M，将其扩大就可以了",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 635,
-      "problem": "交易管理使用过程中概率黑屏交易管理，如客户出入金页，一会正常一会不正常（黑屏显示），*作时有时报错，如：tx_no_status既不是表的datacolumn也不是datarelation.后台和前台不一致原因造成，如后台为8409新前台是8502，交管管理不兼容后台。",
-      "solution": "交易管理使用现后台对应的版本",
+      "problem": "客户在即将接近收盘时，进行下单，部分成交后进行撤单，委托单一直显示等待撤除状态。",
+      "solution": "原因：此时只有成交回报，没有委托回报，而且返回的撤单回报是失败的，导致在该版本优化的委托单查询逻辑不起作用，没有对撤单回报进行处理。处理：不影响后续交易， 等待收盘冻结资金释放。已经在8408进行修正。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 636,
-      "problem": "TMC可用性检测-同步服务：写入到物理库超时可能原因：重装oracle后,用户sync_ser_a和sync_ser_b的群组不正确",
-      "solution": "改所属群组usermod -a -G oinstall sync_ser_ausermod -a -G oinstall sync_ser_b",
+      "problem": "风控终端登录无数据",
+      "solution": "风控终端需要升级（原因是今年初，风控终端使用的监控功能号全部更新，如果只更新后台，不更新风控终端，会取不到数据）",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 637,
-      "problem": "V8T环境oracle挂了，重装 oracle（server）后，监听启不启来",
-      "solution": "/var/tmp/.oracle用户和组当前是root 改为oracle oinstall",
+      "problem": "客户持仓20手,下单5手成交,文华终端可平手数查询20手;查看trade_server主备日志发现,刚启动时二者日志时间差44ms,在出现问题时trade_a的trade_server比trade_b的trade_server慢5秒;",
+      "solution": "【目前尚未解决】可以采用xquery_bu的处理防止这个问题,但需要网关做修改;可能修改牵涉到的面比较大。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 638,
-      "problem": "TMC升级时报错：/v8t/portal1/portal1/data_pump/output/20100127/TB_TtOptionSelfCloseEntrust.dat: No such file or directoryportal1下data_pump中配置load_table.ini的type值默认为4，当前被改成其它值造成datapump失败",
-      "solution": "/v8t/portal1/portal1/data_pump/conf/load_table.ini[COMMON]Type=4",
+      "problem": "交易监控服务器反复coredump,导致磁盘空间满。",
+      "solution": "客户系统中，msqbu异常，会产生coredump.但因msqbu会被自动反复重启，每次产生的core不一样。权宜之计是，让后面新产生的core文件，覆盖前面产生的core文件。方法是让core文件只包含文件名，不包含进程ID.参考如下网页：http://blog.csdn.net/caspiansea/article/details/23030893",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 639,
-      "problem": "双arbiter模式下，ksFmoniter监控中，仲裁a与仲裁b对应IP地址及装太信息错误，即仲裁a显示的是仲裁b的IP地址、及状态，而仲裁b显示的仲裁a的IP地址及状态信息；",
-      "solution": "当交易系统采用双arbiter模式时，ksFmoniter中两个arbiter对应ip地址、中文节点标记必须严格按照TMC仲裁服务中IP和中文标记（仲裁a、仲裁b）来配置，因为ksFmoniter中arbiter英文标识不像其他节点如trade_a、trade_b等可直接区分a节点b节点，且TMC进行信息广播时按照TMC上对应节点信息进行广播。",
+      "problem": "初始化失败，导入数据库记录条数跟结算分发记录条数不符",
+      "solution": "1、通过tr_mng用户登录，查看biz_bu bin路径下有较多表明.log的日志文件产生，且大小一致，经过查看是sqlplus连接数据库报错，初步猜测数据库有问题；2、让***人员用plsql连接V8T数据库，发现连接不上，他们也发现了数据库有问题，后来确定为oracle连接数不够限制所致，默认 processes=150，此值太小，通过扩大此配置，数据库恢复使用，重新初始化也正常了；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 640,
-      "problem": "强平客户进行单客户强平，可强平持仓显示为空。",
-      "solution": "1.查看参数ZHCBCYQP是否为1；\n2.查看参数MARGIN_DISCOUNT中对应通道的参数值是否为1或2；\n一般上期所由于大单边业务设置为1，***所的大单边业务设置为2\n3.查看持仓合约的交易优惠标识是否为优惠；\n满足以上三个条件，单客户强平的当前持仓列表为空",
+      "problem": "机构版机构版导入主板成交文件，存在大连行权新开仓数据时，p852003_jgb.sql的处理逻辑，导入到file_exch_seat_done表中，相同交易所、席位的数据只能保留一条，导致结算时新开仓数据不全。",
+      "solution": "p852003_jgb.sql时去除清file_exch_seat_done表的处理",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 641,
-      "problem": "委托监控窗口中按委托状态的分类合计值，不等于表格中各种委托状态的简单计数合计。",
-      "solution": "分类合计值指的是上次刷新到这次刷新之间委托单状态变化的汇总。",
+      "problem": "客户美元出金报“客户资金不足”，但真实情况是客户美元账户中是有钱的。然后再做一次同样金额的美元出金，就成功了。造成这种情况的原因是：美元出金可提计算问题，客户出金业务中，交易冻结出金金额的时候，做了自动解质业务，客户的货币质押冻结金额和货币质押余额有了变化，但是，货币质押冻结金额是通过同步程序同步到结算系统，银期系统计算可提时，货币质押冻结金额是在结算系统中取值，当同步程序在银期可提计算之后才把货币质押冻结金额同步到结算时，银期可提计算的值就是错误的。就会发生客户无法出金的情况。",
+      "solution": "银期系统计算可提资金之前去交易系统查询客户资金的时候，让交易系统把客户的货币质押冻结金额这个值返回给银期系统，这样银期计算可提资金就正确，客户就可以出金了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 642,
-      "problem": "V8T交易总线和推送总线起不来，且分别产生core文件。",
-      "solution": "查看/trmq_a_dat/0001/日期和phmq_a_dat/0001/日期文件夹下日志文件的属主权限是否正确，若不正确需要进行修改，重新启动。",
+      "problem": "个股结算opts数据分发导入到v6so，回导后报 新增个股的合约失败！",
+      "solution": "后台调用p_opts_data_back.sql，看具体报什么错。发现是新增到合约表时，币种字段为空。opts个股回导的合约文件里面，需要把个股合约表的币种字段赋值",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 643,
-      "problem": "风控终端，执行批量行权风险分析时，挂单冻结资金未释放。",
-      "solution": "无目前代码实现是挂单冻结保证金被正确释放，用于行权，但挂单冻结手续费未被释放，无法用于行权。",
+      "problem": "分配行权后行权的开仓记录没有生成",
+      "solution": "排查后发现最新版本的p852003中，每次插入大连行权的开仓记录时都会清除以前插入的记录，导致只可能有一条记录存在表中。其次需要注意目前分配行权界面有个已知未修复的问题，在分配行权时需要将所有记录都分配好才能点击确认按钮，不能分配一条点击一次，也就是每天的分配只能点击一次确认，点击多次会出现重复生成开仓记录的问题。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 644,
-      "problem": "开启TMCMonitorBroacast.exe后，用KSFMonitor进行总线核心信息监控，总线可以监控到， 交易核心监控不到，事件信息中，显示cid=-3 is out of range 信息。",
-      "solution": "TMCKSMonitorBroadcast.ini中，(实例号)instance=，客户方配置成1，应该配置成空。",
+      "problem": "从8502完整包中获取英文版交易员后，进行登录，显示的依然是中文。",
+      "solution": "参看Readme.doc手册配置好SerialKey=E34F8ECC4CF775642FB59B63ACA2DA6D02D9CFE4AA1F203B再重新启动交易员。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 645,
-      "problem": "点金手验证码不能刷新",
-      "solution": "之前小月碰到过，然后重装下flash插件就好了，周五又碰到类似的，问了下杜爱月 说可能是权限问题，本地测试了一下，当点金手往c盘的program file（X86）拖的时候需要管理员权限，当打开点金手确实验证码不会刷新，使用管理员权限打开就可以刷新，所以这种问题就在NewMidas.exe属性里勾选“以管理员身份执行此程序”",
+      "problem": "部署环境后，环境启停正常，各节点正常，但交管管理使用中，如交易所状态设置时，报错找不到BU配置问题，trade_bu没有注册成功",
+      "solution": "trade_bu.ini如下配置检查下是否正确：//总线连接[KSMQ]DATE=20180628IP=224.0.1.157SELINTERFACE=192.168.1.157",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1057,13 +1057,13 @@
     {
       "id": 676,
       "problem": "数据分发导入的时候报错“v6t数据回导处理出错处理组合保证金合约规则表失败”",
-      "solution": "先用语句1查询，如果日期还是上个交易日的，则用语句2删除掉his里面的数据~然后重新做数据分发即可~1.select tx_date    from  v6tmp_comb_split_contract2.delete  from   his_comb_split_contract  where  tx_date  ='日期'",
+      "solution": "先用语句1查询，如果日期还是上个交易日的，则用语句2删除掉his里面的数据~然后重新做数据分发即可~1.select tx_date    from  v6tmp_comb_split_contract2.delete  from   his_comb_split_contract  where  tx_date  ='日期'",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 677,
       "problem": "导入交易所成交文件的时候报错，有客户共一一个交易编码~",
-      "solution": "用以下语句查出共有交易编码，然后删除掉多余的客户即可~select seat_no,tx_no from cust_map group by seat_no,tx_no having count(*)&gt;1",
+      "solution": "用以下语句查出共有交易编码，然后删除掉多余的客户即可~select seat_no,tx_no from cust_map group by seat_no,tx_no having count(*)>1",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1171,7 +1171,7 @@
     {
       "id": 695,
       "problem": "要限制某一个客户某一个合约禁止交易，为什么设置了相应参数还是不能进行限制~",
-      "solution": "1.v8t柜台==&gt;客户交易限制管理，增加一条记录，设置对应的客户***约以及‘交易限制’选择‘3.禁止交易’；2.UPD_TRADE_LIMIT ，设置为“0”-以交易中心为主；3.IF_TRADE_LIMIT  ，设置为“1”-启用；4.核实该客户是否对应此v8t交易中心；",
+      "solution": "1.v8t柜台==>客户交易限制管理，增加一条记录，设置对应的客户***约以及‘交易限制’选择‘3.禁止交易’；2.UPD_TRADE_LIMIT ，设置为“0”-以交易中心为主；3.IF_TRADE_LIMIT  ，设置为“1”-启用；4.核实该客户是否对应此v8t交易中心；",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1183,7 +1183,7 @@
     {
       "id": 697,
       "problem": "1.入金报错“交易入金失败”~2. 出金500，报错10001无法识别，客户其实有1000的资金~",
-      "solution": "1.把app/yqbu.ini里面的8700更改为19900即可~[YQBU]//交易服务器的功能号配置，格式为：&lt;源节点&gt;:&lt;目标节点号&gt;:&lt;主功能号&gt;TRADESVR=0:0:87002.客户对应的交易中心不对，改为第一交易中心即可~",
+      "solution": "1.把app/yqbu.ini里面的8700更改为19900即可~[YQBU]//交易服务器的功能号配置，格式为：::TRADESVR=0:0:87002.客户对应的交易中心不对，改为第一交易中心即可~",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1194,8 +1194,8 @@
     },
     {
       "id": 699,
-      "problem": "当客户只有大连组合持仓 且组合持仓情况如下  SPC合约A&amp;合约B  60手   SP合约A&amp;合约C 5手  盘中客户 发起 平 SP合约A&amp;合约B 5手后  SPC合约A&amp;合约B 持仓变成了55手而不是60手",
-      "solution": "盘中客户 发起 平 SP合约A&amp;合约B 5手  但由于实际上 SPC中的合约A开仓早于SP中合约A 我们系统盘中平的实际上就不是SP中***约A 而是SPC的合约A，这样盘中的持仓就变成了 SPC合约A&amp;合约B 持仓变成了55手。盘后结算的时候又会重新组合 就变成 SPC合约A&amp;合约B  60手 原先SP合约A&amp;合约C 5手全部被平仓。",
+      "problem": "当客户只有大连组合持仓 且组合持仓情况如下  SPC合约A&合约B  60手   SP合约A&合约C 5手  盘中客户 发起 平 SP合约A&合约B 5手后  SPC合约A&合约B 持仓变成了55手而不是60手",
+      "solution": "盘中客户 发起 平 SP合约A&合约B 5手  但由于实际上 SPC中的合约A开仓早于SP中合约A 我们系统盘中平的实际上就不是SP中***约A 而是SPC的合约A，这样盘中的持仓就变成了 SPC合约A&合约B 持仓变成了55手。盘后结算的时候又会重新组合 就变成 SPC合约A&合约B  60手 原先SP合约A&合约C 5手全部被平仓。",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1267,7 +1267,7 @@
     {
       "id": 711,
       "problem": "某一个类下面的客户Econgisn登录失败，弹框报错“stop”~",
-      "solution": "新加的客户类，交易中心与此类客户没有对应关系，所以此类客户无法正常登陆；此数据是通过数据分发的，而v6t柜台没有应急添加客户与交易中心对应关系界面，所以只能后台应急添加，语句如下：update trading_cust set  trading_no='v6t交易中心代码'   where cust_no IN (SELECT cust_no FROM cust_basic WHERE cust_class LIKE '%新客户类%') update trading_cust_class  set  trading_no='v6t交易中心代码'   where  cust_class LIKE '%新客户类%'PS：处理完交易系统之后，需要子在V6S结算系统上&lt;交易中心与客户对应关系设置&gt;功能界面，点击&lt;设置&gt;按钮，把客户类添加到对应的交易中心~",
+      "solution": "新加的客户类，交易中心与此类客户没有对应关系，所以此类客户无法正常登陆；此数据是通过数据分发的，而v6t柜台没有应急添加客户与交易中心对应关系界面，所以只能后台应急添加，语句如下：update trading_cust set  trading_no='v6t交易中心代码'   where cust_no IN (SELECT cust_no FROM cust_basic WHERE cust_class LIKE '%新客户类%') update trading_cust_class  set  trading_no='v6t交易中心代码'   where  cust_class LIKE '%新客户类%'PS：处理完交易系统之后，需要子在V6S结算系统上功能界面，点击按钮，把客户类添加到对应的交易中心~",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1326,92 +1326,92 @@
     },
     {
       "id": 721,
-      "problem": "升级opts版本到1.91后，在v8t初始化的时候，初始化失败，报错信息为，导入客户资金表中客户期初余额核对不正确。",
-      "solution": "查询v8t数据库，SELECT nvl(round(SUM(last_remain), 4), 0) last_remain FROM v8user.tt_cust_real_fund;得到v8t汇总出来的客户资金表期初余额。 核对opts上场文件，v8_check_dataitem，该文件中的期初余额值为多少。 检查Opts数据库表SOC.CUST_FUND_POSITION_SUM中的QCYE该字段值为多少。 最后是汇总opts数据库表fund中this_bal字段的值为多少。 依次检查以上几项内容，查看偏差出现在哪里。",
+      "problem": "全真环境升级1.91版本以后，交易客户下单报客户买入开仓交易限制或已销户。",
+      "solution": "1.91版本升级报中，在结算管理升级包里，个股期权数据处理文件夹，有个实施脚本，做用是在结算端添加客户的交易权限，结算后上场给交易V8T，如果没有刷这个脚本，就会导致客户的交易受限制。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 722,
-      "problem": "新搭了一套测试环境，搭完后，启动应用时，有个推送的bcc应用起不来。",
-      "solution": "调整交易，风控，推动，门户 4个应用的内存库大小。 /V8T/用户名/用户名/kssmdb/ksmdb.ini，修改该文件中配置的内存库大小。",
+      "problem": "生产环境部署了3个周边网关，连接的同一个cmds，但是其中一个网关上的行情是正常的，另外两个网关上只有部分行情，有一部分行情并未取到。",
+      "solution": "比对3个网关的配置与dll版本，发现其中两个网关的kshq_cmds.dll和IDCreator.dll文件版本为旧版本，升级该两个dll文件。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 723,
-      "problem": "升级完银期平台V1.0.3.13和V1.0.14之后二席资金同步程序启动时弹框报错“Unhandled exception has occurred in your application.If you click Continue,the application will ignore this error and attempt to continue.If you click Quit,the application will close immediately.”",
-      "solution": "最新的1.0.3.14包已经更新，重新下载并升级此补丁包即可正常运行二席资金同步程序。",
+      "problem": "反映在做v6s数据分发导入的时候，出现报错：“数据分发导入后续处理出错！”",
+      "solution": "可以查看ddlog日志，在出现报错的信息处会有执行的存储过程，可以拿此存储过程在sybase里执行，可以看到具体报错。可根据报错做相应的处理。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 724,
-      "problem": "现发现，如果交易所有产生滚动交割或者在最后交易日那天进行交割的情况下，在机构版柜台的“交易结算单”界面生成的逐日方式账单里，交割记录里的”交割盈亏“的值依然为0",
-      "solution": "目前此问题只影响到账单里的交割盈亏显示，后续等开发进行修复。",
+      "problem": "系统里***铝和锌品种客户保证金小数精度的问题是不是在存在？他们某天结算差了一分钱，版本是6915",
+      "solution": "客户问题描述有问题，实际问题现象不是他们所描述的这样。 实际上问题现象是客户是按交易所保证金设置的，但计算下来锌和铝的客户保证金和交易所保证金会有精度误差。例如交易所保证金是14234567.75，而客户保证金是 14234570.10. 这个问题目前V6S没法解决，因为客户的保证金算法和交易所不一致，而目前没有交易所的保证金精度处理都有不同，让V6客户的保证金和交易所一致的话，那客户的保证金算法就要区分交易所，改动很大，不现实了。但V8S是不存在这个问题的，可以让期货公司期待V8S。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 725,
-      "problem": "在V6S做客户强平委托记录表查询 的查询的时候，发现有2个客户被查出来强平的记录有2条相同的记录，但是实际上他们只有强平了一次，他们家是V6S+V8T的架构，交易都在V8T上面做的，但是他的V6S还是开启着报盘收行情收回报的。他们的强平是在V8T中做得，在V8T中查到的只有一次.",
-      "solution": "具体的内容请见排查过程。同时此问题已经提交需求，待确认后续如何处理。。",
+      "problem": "***上了一套我们公司的CRM系统，用于异常交易管理，而crm系统是通过采他们V6S的灾备数据库信息来获取数据源的。但是灾备里是没有行情数据的。问我们怎么解决！",
+      "solution": "在其灾备系统部署一个sendqhtodb，从其V8T的cmds上获取行情，在写入到V6S的灾备系统就可以了（他们的灾备系统有部署app）",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 726,
-      "problem": "某一个类下面的客户Econgisn登录失败，弹框报错“stop”~",
-      "solution": "新加的客户类，交易中心与此类客户没有对应关系，所以此类客户无法正常登陆；此数据是通过数据分发的，而v6t柜台没有应急添加客户与交易中心对应关系界面，所以只能后台应急添加，语句如下：update trading_cust set  trading_no='v6t交易中心代码'   where cust_no IN (SELECT cust_no FROM cust_basic WHERE cust_class LIKE '%新客户类%') update trading_cust_class  set  trading_no='v6t交易中心代码'   where  cust_class LIKE '%新客户类%'PS：处理完交易系统之后，需要子在V6S结算系统上&lt;交易中心与客户对应关系设置&gt;功能界面，点击&lt;设置&gt;按钮，把客户类添加到对应的交易中心~",
+      "problem": "点开结算单下的任意菜单项都会提示“没有实现的功能 XXXXX”",
+      "solution": "就是KSManager.ini文件[Packages]节少了结算单模块对应的bpl配置即25=RptXUI.bpl的加载配置。 需要先将KSManager.in文件转换成KSManager.ini，修改ini文件内容，再转回in文件。 [Packages] Count=26 Count_INFO=Count@@S@@0 1=KSDebug50.BPL 1_INFO=1@@S@@0 ……………… 25=RptXUI.bpl 25_INFO=25@@S@@0 26=FeeAccUI.bpl 26_INFO=26@@S@@0",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 727,
-      "problem": "升级完银期平台V1.0.3.13和V1.0.14之后二席资金同步程序启动时弹框报错“Unhandled exception has occurred in your application.If you click Continue,the application will ignore this error and attempt to continue.If you click Quit,the application will close immediately.There is no row at position 0”",
-      "solution": "p851161没有升级成功，重新升级就OK了，可以在盘中直接升级，虽然升级文档上严格要求，结算后初始化前升级，但是这个sp已经跟开发核实了，可以在夜盘中直接升级 ~",
+      "problem": "客户在6915版本柜台开销户查询，选择8月开户日期查询，发现如果客户当月开户了，然后又销户了，再又开户了，那么选择开户类型查的时候，会把销户的那条记录也会查出来。",
+      "solution": "开销户查询调用的是p851023，脚本直接是按照开户日期查询的，并没有过滤客户状态为销户的情况。因此碰到当月开了又销，然后再开的情况就会有这个现象。跟研发沟通了，目前研发认为如果销户了又开了，那么就会在开户里查就会显示，暂时不会进行调整。也跟客户说明了情况。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 728,
-      "problem": "通过云开户方式开户的客户资料中证件有效期日期会比实际云平台上录入的日期提前一天。",
-      "solution": "bug，QC号19697，是有测试录入的，相应的测试人员是王颖。修改的是云平台开户接口，修改开发是刘艺。",
+      "problem": "银期转账入金开始时间，设为20：40，对应银期转账入金结束时间，设为15：30，有什么影响",
+      "solution": "晚上20：40到第二天15：30都能入金，但存在一个细节，银行夜盘后会关闭的，也就是说夜盘结束2：30到8：30之间，如果有客户入金，银行会报错，期货端就有可能有异常转账；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 729,
-      "problem": "机构版1.5，主板6916，咨询机构版“费率同步”如何使用",
-      "solution": "需要单独部署一个交易结算网关连接主板V6S和机构版，程序直接取主板S和T之间的，替换掉机构版1.5包中有个机构版到主板的配置文件（trc.txt）；能同步主板到机构版的手续费率和保证金率；",
+      "problem": "仿真系统做数据分发导出的时候，报错“ffgt:852128 交易系统代码为空”",
+      "solution": "重启数据分发服务器正常；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 730,
-      "problem": "银行端发起银期开户时，柜台提示报错“您在期货柜台状态非正常”",
-      "solution": "在柜台“银行参数设置”界面，可以将ZT参数设置成N，这样系统就不会校验客户状态。",
+      "problem": "机构版结算，发现客户组合持仓中，本该优惠的那一腿，收了较少的保证金，比如大连铁矿石买卖各5手，腿1保证金16520，腿2保证金15520，但看客户腿2收了保证金200；",
+      "solution": "对比组合单管理和结算价录入界面，将合约结算价修改正确，重新结算即可；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 731,
-      "problem": "农行出金报‘结算成功，交易失败，交易转账失败:50110,客户在此交易中心不允许交易、不允许出入金！]’",
-      "solution": "这类问题是一般是交易结算网关没开导致的问题，检查发现都是开启的并且运行正常。后发现客户的T系统没有初始化，还是上一交易日，初始化后再做就正常了。",
+      "problem": "***V6S生产系统柜台管理以金仕达格式做客户结算数据导出，当时有两个客户生成，一个客户生成出数据，另外一个机构客户却生成不出数据，柜台界面一直处于繁忙状态。进而导致机构版系统无法正常结算。",
+      "solution": "当晚应急措施，先成交写库，做应急交易初始化。 后续处理：开发优化了代码，单独发给***，本地已提6916的紧急BUG，后续发布。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 732,
-      "problem": "反映在进行投资者保障基金免收客户设置的时候，早期设置了有1万多客户，但是隔了一段时间之后，发现客户数量只有7000多个了。",
-      "solution": "目前的处理方式：就是等 此问题已反馈给需求兰杰，已出需求变更，会在6922版本里对免收客户投资者保障基金功能做优化。",
+      "problem": "***仿真系统做***持仓结算时，报错“30029，HO  没有标的收盘价”。",
+      "solution": "手工在spot_quot表里insert该品种HO的close_price数据值，重新持仓结算即可，语句如下： insert spot_quot( tx_date,exch_code,vari_code,close_price,currency_code) values( '20160830','D','IO','2300','1') insert spot_quot( tx_date,exch_code,vari_code,close_price,currency_code) values( '20160830','D','HO','2300.66','1')",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 733,
-      "problem": "柜台==》资金结算的时候报错“错误号-7；错误原因：存储过程无返回......Procedure 'fund_settle' can't allocate space .....”",
-      "solution": "扩库～　　数据库空间不够～",
+      "problem": "升级1.907资金内转的版本后，通过外围查历史数据，报错找不到功能号XXX提供的bu组。",
+      "solution": "修改网关路由配置，原：498051，变更为：90498051；原：120503，变更为：90120503；原：683988，变更为：90683988；原：684811，变更为：90684811。 修改交易结算网关配置文件trc.txt，将该5个功能号做相应修改。 修改结算后台代码zqbu/zqbu/BDFunc.inl，添加该5个功能号的相应数据，并重新编译。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 734,
-      "problem": "柜台==〉‘复核处理’界面，查询已复核的数据，双击数据无法显示出‘*作说明’，经过排查发现在当前库的数据双击之后是可以显示‘*作说明’的，但是如果数据已经截取到历史库那么无法显示；查看app/raconfig.ini没有添加功能号855609，这个需要开发在后台进行编程~",
-      "solution": "已经告知客户在app/raconfig.ini添加功能号855609，看功能是否实现，如果实现不了就得让开发后台改了，需求已经提交了`~",
+      "problem": "日终结算，交易清算时报错，找不到客户号XXX，另外在交易下场的成交表中找不到相应的成交数据。",
+      "solution": "由于该成交数据不是本系统席位上下的单，该客户并非我们系统客户，所以将该客户的成交明细数据删除，删除opt_jsmx和opt_jsmx_tmp表中该客户相应的数据。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 735,
-      "problem": "柜台==》'资管非本公司经纪业务资金数据管理'和‘资管非本公司经纪自己明细管理’导入功能显示的资金数据会扩大100倍～",
-      "solution": "bug~提交序号：10552发布文件：win32/柜台管理/bin/ZjhRptUI.bpl",
+      "problem": "深圳市场，公司级总持仓监控有误，系统中客户实际持仓已达上限，客户仍然能够下单。",
+      "solution": "经排查，该问题属于Bug，结算上场数据有误，未将公司级总持仓数据上场v8t。",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1866,92 +1866,92 @@
     },
     {
       "id": 811,
-      "problem": "***，v8t初始化，报错‘保证金优惠参数核对不正确’。",
-      "solution": "把焦点聚焦到v8t和v6s上保证金的优惠参数不一致。经过一番对比之后，找到是***大单边的优惠参数不一致，v8t这边是启用的，v6s那边是不启用的。       修改v8t里的参数，使之和v6s一致，初始化可以过去。",
+      "problem": "柜台==》特征数据查询审核=》查询二级汇总信息，查出来的数据右键鼠标无法到表格以及打印",
+      "solution": "bug,已经提交紧急bug~如果有客户着急用，可以使用附件文件，覆盖到柜台bin目录下即可～",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 812,
-      "problem": "仿真系统，从原来的机器上拷贝了app，drtp，数据分发服务器，地址和数据库配置没有问题，但是在做数据分发导入的时候有报错‘获取数据库用户2失败’。",
-      "solution": "排查了一下，报错来源于 date_dispatch_in.sh里的 cd ../ksqhtools SAPWD=`showscriptinfo -U k**ackup -F ${SYBASE}/ksqhtools/ksftscript.info -T v6_sa。    居然是showscriptinfo没有可执行权限，检查了一下ksqhtools里的showscriptinfo文件，的确是没有可执行文件，而且很多文件都没有执行文件，chmod +x *给所有文件    加上可执行权限之后，问题解决。",
+      "problem": "V6S升级完6916之后，柜台管理开户申请界面查询出互联网开户的客户来源选项里数据为空。",
+      "solution": "柜台管理重新升级，升级后查询即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 813,
-      "problem": "8316_p2，盘中有两个客户实时保证金资金为负",
-      "solution": "郑州盘中对锁业务，优惠保证金少的一边，收取保证金多的一边。如SR1608买100手，保证金10000，SR1608卖100手,保证金9000，形成对锁以后，SR1608买100手和卖100手，共收取保证金10000. 在平对锁仓的一腿时，会重新计算保证金，如平了SR1608买50手后，对锁持仓要先释放SR1608买的50手保证金，再去收取SR1608卖50手的保证金。但是由于在平仓的时候去找持仓明细，在持仓明细里SR1608的买50手不是记在一条记录里， 可能分成了50条记录，每条均为1手，那就需要每平仓一手进行释放一手，问题就出在这，因为提前计算要释放50手的保证金，那么在平仓一手的时候也会释放50手的保证金，这样一来平完50手之后，就释放了50次50手的保证金，故保证金释放太多， 总保证金为负！该问题修改于8316_p5包。",
+      "problem": "客户反馈热备前置机运行中显示异常，报runtime error的现象。",
+      "solution": "经查是客户热备机器的磁盘空间满了，删除一些热备的日志信息后重新开启即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 814,
-      "problem": "客户用econsign明明有下过条件单，但是录出重新登陆后，条件单查询界面没有记录！",
-      "solution": "登录后是看不到，要手动点查询才可以查出来",
+      "problem": "客户反馈大连铁矿石盘中和盘后持仓均价不一致，想问下怎么回事。",
+      "solution": "经查客户没有打我们目前最新的大连短线盘中处理补丁。这样客户还是用的之前后开先平的方式。如果打了0527的补丁，就可以盘中按照先开先平的方式进行处理，与结算时保持一致。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 815,
-      "problem": "V8T里也有HYCSH这个参数，这个参数的描述里 1是自动合约初始化 2是报盘写入。 所以不太肯定 是不是用报盘写入合约模式的话 是不是要选2 会不会有什么区别。",
-      "solution": "那实际上 如果 是V8T初始化后再开启接口 而接口 配置的是 合约写入的话 实际上 1 还是 2 都无所谓的",
+      "problem": "在生成***格式的结算文件的时候，发现在生成的“交易会员标准合约结算明细”中，有漏数据，当在有产生交割的情况下.",
+      "solution": "给***6916-1版本下的p852039这个sp即可。 同时注意的是： 在6916版本上这个sp也有修改，是季楷修改的，修改如下：  * 修改日期:    20160309  * 修改人员： jrx  * 修改描述： 交割手续费差几分钱不重新算，直接取  * 备注信息： 6.9.1.1 但是在6916-1的版本修改中，未含有这块的修改。目前我已经告知蒋琦，让其进行版本的合并。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 816,
-      "problem": "v8t交易管理==》客户交易限制管理，投保标识可以选择“0-投，1-保，2-套，3-备兑”，但是在v6s柜台==》客户品种交易限制设置，投保标识默认只能选择“0-投”~",
-      "solution": "1.客户是6914的版本，v6s投保标识默认只能选择“0-投”，只有升级到6916才会增加其他投保标识属性～2.客户现在要使用此功能可以使用如下方法：可以直接在v8t上直接设置进行单独维护，不经过v6s,但是需要在v8t柜台“设置交易参数”设置如下参数:A：UPD_TRADE_LIMIT ，设置为“0”-以交易中心为主；B：IF_TRADE_LIMIT  ，设置为“1”-启用；",
+      "problem": "客户热备前置机报插入热备份流水记录错误，错误数一直在增加。",
+      "solution": "检查下来客户是因为热备前置机的机器有问题，于是从V6T拷贝了热备前置机程序，配置后他们重新进行了热备初始化，导致热备重新进行采集，将夜盘的*作日志信息都同步了一遍，导致流水号重复而报错。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 817,
-      "problem": "法人户做农行的银期签约报错“处理失败，此银行账号期货系统未录入”~",
-      "solution": "让其检查柜台==〉'开户申请'附加资料里面的银行信息发现，银行帐号抬头少了一位数字3，加上3重新签约即可～",
+      "problem": "在升级完6916后续某个补丁之后，在互联网开户默认设置那里会显示&quot;互联网开户客户未设置初始密码，则默认初始密码为身份证号码后六位加结算参数HLWKHCSMM的值&quot;，举例：投资者身份证号码为33072619650704001X，结算参数HLWKHCSMM值为123，则该客户的初始密码为704124.",
+      "solution": "目前的处理方法就是不用去管他，和客户说明这块内容的修改是在 6921版本上即可。 下面的6921上的对于这块的相关说明： n 当前互联网开户客户初始密码默认为身份证号码后六位数字，为了防止居间人猜出客户网上交易初始密码，擅自更改后自行进行交易，调整互联网开户客户初始密码生成规则——根据结算参数HLWKHCSMM（互联网开户初始密码）生成初始密码： ² 参数值为0-9999间的整数时，初始密码为身份证号码后六位数字加参数值。 例：投资者身份证号码为31010120000101000X，HLWKHCSMM为123时，该客户的初始密码为101123。 注意：初始委托密码仍受结算参数WTMMMRZ（委托密码默认值）控制，WTMMMRZ为0时，初始委托密码为空。 ² 参数值为其他值时，系统视该参数值为0。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 818,
-      "problem": "一个特法户，截图中附件资料里的证件截至日志明明是20151017，但提交时提示“9000004:附件联系人证件截至日期:日期必须大于等于20160720”",
-      "solution": "这个特法户一堆附加联系人，其中有两个人的身份证截至日期还是2015年的！修改后提交就可以了！",
+      "problem": "汇点客户端，查询资金菜单，界面上的限购额度值始终未0.",
+      "solution": "升级网关版本，主要是升级FVCInter.dll这个文件。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 819,
-      "problem": "结算后发现一个客户&quot;客户资金对账&quot;和&quot;客户持仓查询&quot;里面的客户保证金不一致,相差几千万",
-      "solution": "相差的值算下来刚好是交割保证金,而他们家的交割保证金没有释放,但是仓已经没了,所以&quot;客户持仓查询&quot;里面的客户保证金比&quot;客户资金对账&quot;少交割保证金的部分 ~正常逻辑,没问题~",
+      "problem": "反映使用6.46.20151203.1的版本的econsign做登录时，弹出的通知消息窗口里的信息全部都在一行内显示，影响了通知内容的正常显示。",
+      "solution": "如客户有需要，可以使用上一个版本可以正常显示的econsign，即6.46.20150430.1的版本；点金手可以使用8.0.20150828.2的版本。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 820,
-      "problem": "柜台==》频繁下单管理，增加数据的时候报错“异常代码【1400】异常信息：ORA-01400： cannot insert NULL into(&quot;V8USER&quot;.&quot;TT_FREQUENT_ENTRUST_RULES&quot;.&quot;SH_FLAG&quot;)”",
-      "solution": "柜台没有升级好，前台缺少&quot;投保&quot;选项，重新升级柜台即可～",
+      "problem": "营业部登陆风控终端，界面有警告，没有取得*作员对应客户关系。界面上客户相关的监控数据都是空。",
+      "solution": "盘后，删除风控服务器的共享内存库，并重启下风控服务器。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 821,
-      "problem": "V6SO 6916版本，其18日进行19日初始化之后，分发到V8TO之后，发现客户查不到相应的持仓。",
-      "solution": "让其规范*作流程",
+      "problem": "客户自动行权阀值如何修改，如何帮客户做自动行权。",
+      "solution": "升级opts1.89版本，在客户风控参数设置菜单下的自动行权阀值修改标签栏下进行自动行权阀值的修改。 自动行权在盘中通过v8t交易管理系统，自动批量行权菜单进行自动行权*作。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 822,
-      "problem": "升级***1.62接口，启动之后提示：加载交易所DLL【CFFEX.dll】失败！可见附件",
-      "solution": "比较下来，发现缺少libCFFEXmduserapi.dll,该dll在V6T1.2-2包中有发布，让他们升级之后，接口就可以开启了",
+      "problem": "风控终端打开的时候有报错：风控服务器返回：查询数据856005-1：风控数据尚未准备好-1！",
+      "solution": "检查一个交易参数DO-SSFX(风险试算)，参数值是1，把参数改成0，重新登录即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 823,
-      "problem": "由于系统逻辑原因，现在无法自动产生jd1707的合约，现在建议客户手工柜台添加合约或者在报盘上勾选“启用报盘想交易核心写入合约模式”，但是合约勾选了该功能，并没有收到该合约~",
-      "solution": "bug ,已经提交紧急bug~",
+      "problem": "用V8T交易员做期权仿真，测试郑州放弃行权，有报错“期权行权只能在最后交易日进行申请”",
+      "solution": "这个报错是交易所给的，交易所自己弄错了最后交易日；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 824,
-      "problem": "高速行情升级到2.0，sendhqtodb上面有报错“行情写库出错，retCode =-----------不存在合约{snefp}”",
-      "solution": "没有关系，开盘后就会正常~",
+      "problem": "想查V8T成交的ip和mac",
+      "solution": "首先根据交易内存库ttentrust（实时委托信息查询），查到该笔委托的entrust_session（下单会话号），对应去门户内存库看ttcustsession（客户会话管理）中的session_id（会话session），对应找到login_ip和login_mac；如果entrust_session是0的话，表示不是从客户终端做的委托，应该是交易员或风控终端做的强平，此时可以看委托对应的*作员来验证，必定不是网关*作员。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 825,
-      "problem": "银期转账的时候报错，返回码是80005~",
-      "solution": "银期签约有问题，重新进行签约即可~",
+      "problem": "升级了6916，V6S柜台开户申请修改法人资料，税务登记号竟然无法修改，无论是否勾选修改身份信息；",
+      "solution": "退出修改再进修改界面就好了；",
       "source": "日常运维QA（已满）"
     },
     {
@@ -1987,7 +1987,7 @@
     {
       "id": 831,
       "problem": "想知道客户端左上角的公司名称要在哪里修改。",
-      "solution": "在客户端的配置文件config-&gt;common-&gt;frame.ini里的配置。",
+      "solution": "在客户端的配置文件config->common->frame.ini里的配置。",
       "source": "日常运维QA（已满）"
     },
     {
@@ -2124,7 +2124,7 @@
     },
     {
       "id": 854,
-      "problem": "客户反馈sybase数据库有死锁的现象，问是怎么回事会有什么影响。日志如下：12:00000:00075:2016/07/04 16:33:14.50 server  Deadlock Id 1 detected  Deadlock Id 1: detected. 1 deadlock chain(s) involved.  Deadlock Id 1: Process (Familyid 0, Spid 28, Suid 3) was executing a INSERT command in the procedure 'p852701' at line 173 at nested level 1.  Deadlock Id 1: Process 28 was involved in application 'qhbu8746'.  Deadlock Id 1: Process 28 was involved on host name 'app2'.  Deadlock Id 1: Process 28 was involved in transaction '$ins'.  SQL Text: exec p852701 '044','20160704','G','2','0','0','ߪʼռɫڱ̨˽ߝսȥ̣ۋф',90  Deadlock Id 1: Process (Familyid 0, Spid 75, Suid 3) was executing a SELECT command in the procedure 'p852702' at line 11 at nested level 1.  Deadlock Id 1: Process 75 was involved in application 'qhbu8802'.  SQL Text: exec p852702 '044','20160704','G',32  Deadlock Id 1: Process (Familyid 0, Spid 75) was waiting for a 'shared page' lock on page 2665484 of the 'clearing_log' table in database 6 but process (Familyid 0, Spid 28) already held a 'exclusive page' lock on it.  Deadlock Id 1: Process (Familyid 0, Spid 28) was waiting for a 'exclusive page' lock on page 2537391 of the 'clearing_log' table in database 6 but process (Familyid 0, Spid 75) already held a 'shared page' lock on it.  Deadlock Id 1: Process (Familyid 0, Spid 28) was chosen as the victim. End of deadlock information.",
+      "problem": "客户反馈sybase数据库有死锁的现象，问是怎么回事会有什么影响。日志如下：12:00000:00075:2016/07/04 16:33:14.50 server  Deadlock Id 1 detected  Deadlock Id 1: detected. 1 deadlock chain(s) involved.  Deadlock Id 1: Process (Familyid 0, Spid 28, Suid 3) was executing a INSERT command in the procedure 'p852701' at line 173 at nested level 1.  Deadlock Id 1: Process 28 was involved in application 'qhbu8746'.  Deadlock Id 1: Process 28 was involved on host name 'app2'.  Deadlock Id 1: Process 28 was involved in transaction '$ins'.  SQL Text: exec p852701 '044','20160704','G','2','0','0','ߪʼռɫڱ̨˽ߝսȥ̣ۋф',90  Deadlock Id 1: Process (Familyid 0, Spid 75, Suid 3) was executing a SELECT command in the procedure 'p852702' at line 11 at nested level 1.  Deadlock Id 1: Process 75 was involved in application 'qhbu8802'.  SQL Text: exec p852702 '044','20160704','G',32  Deadlock Id 1: Process (Familyid 0, Spid 75) was waiting for a 'shared page' lock on page 2665484 of the 'clearing_log' table in database 6 but process (Familyid 0, Spid 28) already held a 'exclusive page' lock on it.  Deadlock Id 1: Process (Familyid 0, Spid 28) was waiting for a 'exclusive page' lock on page 2537391 of the 'clearing_log' table in database 6 but process (Familyid 0, Spid 75) already held a 'shared page' lock on it.  Deadlock Id 1: Process (Familyid 0, Spid 28) was chosen as the victim. End of deadlock information.",
       "solution": "出现这个情况是由于客户在做***清算导入时出现的，在导入后系统要记录一条*作日志，在写*作日志时发生了死锁。目前针对这个情况，研发会对系统进行优化，已按BUG提交，在6921版本修复缺陷。",
       "source": "日常运维QA（已满）"
     },
@@ -2136,182 +2136,182 @@
     },
     {
       "id": 856,
-      "problem": "反应结算耗时较长，尤其是资金结算，要用到七八分钟。",
-      "solution": "用showplan看进程的时候，发现是在insert my_settle_cust_fund表的时候较慢，查看代码之后，发现代码是没有问题的，最后做了一次       reorg rebuild  my_settle_cust_fund 和cust_fund表，结算速度明显加快至两三分钟。",
+      "problem": "在风控管理终端中发送短信通知，发现有客户在短信通知查询中没有查到记录",
+      "solution": "如果是一批量的客户存在问题，并且通过日志也没有办法定位问题的话，那么就直接重启dataitf程序。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 857,
-      "problem": "V6S0通过热备程序从V6S采集数据，但是昨天发现有些客户的入金情况没有备份过去。",
-      "solution": "但客户把cust_money_io表里今天的数据insert到V6SO里面去了,原因暂时不明",
+      "problem": "新搭建了一套v6t，风控服务器在启动时提示：'登录用户risksvr失败:mac ioctl error .!'.",
+      "solution": "这个报错跟网卡的配置有关，风控服务器一定要用到eth0，但是他们的网络设置里没有eth0，新建或者修改一下网卡的名字为eth0，重启风控服务器就好了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 858,
-      "problem": "上交所检查市场参与者保送文件，发现两点数据异常： 1.报备账户重未开户 2.已开账户未报备的问题 上交所要求，尽快查明原因并做出相应修改。",
-      "solution": "1.报备账户未开户 解决方法：opts结算柜台，做合约账户系统内销户  2.已开账户未报备的问题 解决方法：opts结算柜台，一站式开户，输入客户号，从签署合同开始做，做到向中登报送开合约户，这步不做。直接用另外的菜单，合约账户系统内下挂，将合约账户直接下挂到系统后台表中，绕过中登。",
+      "problem": "单客户解锁功能有问题，选择客户之后，会解锁所有客户。",
+      "solution": "859724有两个功能，在后台接口function.sdf文件中给出的客户号参数名叫‘SCUST_AUTH’。 前台传的参数名字却有两个，在”查询”的时候，传的客户号参数名字叫‘SCUST_AUTH’； 在”解锁”的时候，前天传的客户号参数名字叫‘SCUST_NO2’，这样后台的sp不认，导致单客户解锁失败。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 859,
-      "problem": "资管系统从期货后台拉数据同步导入到资管系统中，发现期货和资管系统中的数值不一致，期货端指的是S柜台的当前费率查询，资管系统中指网关和API取值；",
-      "solution": "S系统投资者保障基金，免收设置中加了该客户，T系统中免收设置中没有加，同时我们的免收设置表except_cust_list是不会数据分发的；",
+      "problem": "最近有期货公司升级了6916，之后在证监会报送银行账号那里出现了一点问题，在检查账号重复的时候发现查出来了很多重复账号",
+      "solution": "我们排查下来是因为这些正常客户的银行账号和已经销户客户的银行账号是重复了，但是在以往的逻辑检查重复账号的时候是先筛除销户客户的。我看了一下sp 853127.       在新版本里是有过滤掉客户已销户的记录,但是代码里写的好像有点问题，是用了一个临时表来存储客户的银行账号和币种，但是这个时候没有去过滤销户客户，       之后再在三表联查的时候过滤，就查出来了已经销户的客户的银行账号了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 860,
-      "problem": "柜台==〉‘生产财务接口’界面点击生产按钮报错“输出到文本错误！”如果在生产的过程中，把下拉条往下拉还会报错“错误2，借贷不平，可能是财务科目设置有误”",
-      "solution": "升级了6916就会有这个问题，季公改了一下p852225，在后台刷一下就ＯＫ了，ｓｐ见附件　～",
+      "problem": "交行一线通银行发起01的营业执照三证合一开户，期货应答：“客户证件号码失败。”",
+      "solution": "其原因是因为开户的证件类型字段是空的，交行接口的sysconfig目录下的bcc_dictionary里没有对应01—营业执照的证件类型，对应好了之后，让客户重新发起营业执照开户。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 861,
-      "problem": "反映在为开户客户提交资料的时候，有时候在提交完资料之后，柜台“开户申请”界面查不到该客户信息。（注意，这个和***6916版本里发生的原因不同）",
-      "solution": "目前来说，此问题发生是小概率事件，一旦出现了此情况，目前只能先用删除客户资料的脚本进行处理，然后重新录入客户的资料并提交。已提交QC，在后续的6921版本里会解决此问题。",
+      "problem": "***在夜盘期间反映，v8t系统的客户在使用点金手程序下条件单的时候出现报错：“条件单后台功能权限未开通。”",
+      "solution": "将v8t数据字典5006项里的midas项里所有的'midas'信息改为'Midas'，然后重启网关。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 862,
-      "problem": "反映在点金手界面，点开“资金划转”菜单，菜单下拉列表无法正常显示。",
-      "solution": "两种方式：1.刷上6916的临时解决脚本： update  dictionary set  dict_caption = 'Midas,4,9,*,A1B1C1,5,30,5000,' where  dict_no = 5006 and dict_value = '22' go 2.将网关配置文件fspxswitch.ini里，将委托方式配置正确，其内容为上述的“Midas,4,9,*,A1B1C1,5,30,5000,”内容。",
+      "problem": "V6SO数据报送问题，某一天交易所打电话给公司，反映，前一日期权成交数据少报了。",
+      "solution": "排查下来，是因为在v6so中少了某条合约，而这条合约正好有客户当天做了交易，所以这条合约没有上报。 解决方法：将opts数据库中，从opt_info表中抽出相应的合约，手动导入到v6so的合约表中就可以了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 863,
-      "problem": "客户在历史库刷6916-3_筛选休眠客户优化补丁包时报找不到表sleep_cust_his",
-      "solution": "经查表sleep_cust_his是在包《20110318_P84后续补丁_16（For 正式）》创建的，如果当时没有创建历史库，那么后面就得重新找到包里的altertable_his刷下即可。",
+      "problem": "证券集合产品“***证券资管－宁波银行－***资管超越理财量化对冲3号集合资产管理计划”在公司开立期权账户，但合约账户开户始终不成功，提示中登无相应查询结果。",
+      "solution": "需要修改opts柜台中登合约账户开户逻辑，直接向中登发送开户请求，发送之前不再发送查询的请求。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 864,
-      "problem": "客户在用V8T-I的交易员下了多个开盘触发条件单，退出条件单窗口重新进来，选中一条记录然后进行多选，交易员就报错退出了。",
-      "solution": "经测试验证确实存在此现象，目前已经提交BUG，会在***的8311版本以及8316、8401、8402版本进行修复。",
+      "problem": "反馈有个客户做银期转账出金200万报错：转出资金超出单笔资金限额。",
+      "solution": "让客户在转账权限设置界面里把出金单笔限额设置到200万以上即可出金。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 865,
-      "problem": "***证券测【最大可开仓手数（6044）、最大可平仓手数（6068）】联调发现，下商品期货上期所、大商所报【取交易类别失败】错误，错误码是【-1184959584】。",
-      "solution": "原因是因为合约选的不正确，应该是测试系统柜台设置的问题，看到他家cpack包里记录的 scert_addr:&quot;V1609&quot; 新合约号 、scust_auth:&quot;V1609&quot; 老合约号里，不是合约大小写有问题就是合约这里显示的只是单品种。合约修改正确后就OK了！",
+      "problem": "客户反馈他们交易初始化处理有点慢，大概要12分钟的样子。",
+      "solution": "检查下来客户大连套利组合花的时间确实比较多，不过他们那天大连的数据量也比较大，1万多条数据处理了有8分钟样子，应该还是合理的。后续检查real_arbitrage有缺了索引，因此建议客户将索引重建，另外让客户做下rerog rebulid。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 866,
-      "problem": "升级完V6S6916后，点金手Midas8.0.20140307.1的版本，点资金划转菜单没有任何反应，不弹框不显示。点金手设置界面的密码修改菜单，显示丢失了。",
-      "solution": "更新了20151103_Midas8.0.20151102.1_点金手版本后情况也一样！原因是因为我们6916柜台数据字典最后一项，网关委托方式里的Midas，M应该是大写，小写的话读取不到权限串会有影响，测试部比对网关看到老网关都是小写。目前开发提交的脚本测试已经通过了。之后会进行发布！",
+      "problem": "升级了6916，云开户方面，“互联网开户默认设置”界面取代了之前的“互联网开户设置”界面，新的界面去掉了交易中心设置选项，导致客户云开户回导的资料，都需要手动选择交易中心；",
+      "solution": "本地看了下确实新界面中少了该选项，由于许燕周五休假，已发邮件，等待确认，究竟是业务变更还是BUG，后续跟踪；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 867,
-      "problem": "升级了V8T8313P1-P4及后续大连短线优惠的补丁，初始化一切顺利，问题是风控柜台查询客户资金模块，不选客户类的情况下正常可以查询，选择客户类后无法正常查询，报“错误：321400135，[*作员对该客户类无*作权限]不允许进行当前功能”。升级前及升级后的版本都测试过，均报一样的错误。登录的*作员是有权限的，可以看见所有分类。查询其他项，如委托、成交、持仓都没有问题，总体查询和分类查询都正常。",
-      "solution": "此问题开发修复在V8T8401里。",
+      "problem": "系统监控的数据库监控点开有报错“存储过程无返回 server massage：Message number：3606,Severity 16，State 4，Line 323.Procedure‘p856046’Arithmetic overflow occurred.",
+      "solution": "重启数据库就好了；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 868,
-      "problem": "客户做银期出金，两个客户都出金5万，都失败了，失败信息‘银行返回代码：EB097 无法识别’。",
-      "solution": "原因不明",
+      "problem": "柜台==》‘生成财务接口’界面生成出来申报费的金额高达几个亿～",
+      "solution": "1.业务类型为‘分项资金’生成出来的数据包括交割的金额和申报费的金额；2.‘财务科目设置’界面虽然设置了席位为***，但是会把这个客户其他交易所的分项资金都生成出来，这个是历史遗留问题，已经告知兰杰让其走需求变更～3.但是问题的本质是6916的包把&quot;分项资金只输出A030申报费&quot;这段判断弄丢失了,已经让刘孝辉合并进去了,sp见附件",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 869,
-      "problem": "***这两天发现***1.62那个接口早上开盘的时候不会刷到开盘状态，开盘后还是下不了单，看接口状态还是“开市”，重启了接口才能收到开盘状态下单，他问其他期货公司没有这反映？",
-      "solution": "他们家V6S上已经升级了6914-1***席位不更新的补丁包，但他家表示自己用的是V8T-I的接口，在V8T-I上交易发现的。其实V8和V8T-I都有这个问题，而我们报盘机的机制其实是一样的，V6、V8、V8T-I都能用，我们V8没有发布过此修复包，所以我拿了V6S包里的报盘更新给他们家用，用完解决此问题。",
+      "problem": "客户反馈sybase数据库有死锁的现象，问是怎么回事会有什么影响。日志如下：12:00000:00075:2016/07/04 16:33:14.50 server  Deadlock Id 1 detected  Deadlock Id 1: detected. 1 deadlock chain(s) involved.  Deadlock Id 1: Process (Familyid 0, Spid 28, Suid 3) was executing a INSERT command in the procedure 'p852701' at line 173 at nested level 1.  Deadlock Id 1: Process 28 was involved in application 'qhbu8746'.  Deadlock Id 1: Process 28 was involved on host name 'app2'.  Deadlock Id 1: Process 28 was involved in transaction '$ins'.  SQL Text: exec p852701 '044','20160704','G','2','0','0','ߪʼռɫڱ̨˽ߝսȥ̣ۋф',90  Deadlock Id 1: Process (Familyid 0, Spid 75, Suid 3) was executing a SELECT command in the procedure 'p852702' at line 11 at nested level 1.  Deadlock Id 1: Process 75 was involved in application 'qhbu8802'.  SQL Text: exec p852702 '044','20160704','G',32  Deadlock Id 1: Process (Familyid 0, Spid 75) was waiting for a 'shared page' lock on page 2665484 of the 'clearing_log' table in database 6 but process (Familyid 0, Spid 28) already held a 'exclusive page' lock on it.  Deadlock Id 1: Process (Familyid 0, Spid 28) was waiting for a 'exclusive page' lock on page 2537391 of the 'clearing_log' table in database 6 but process (Familyid 0, Spid 75) already held a 'shared page' lock on it.  Deadlock Id 1: Process (Familyid 0, Spid 28) was chosen as the victim. End of deadlock information.",
+      "solution": "出现这个情况是由于客户在做***清算导入时出现的，在导入后系统要记录一条*作日志，在写*作日志时发生了死锁。目前针对这个情况，研发会对系统进行优化，已按BUG提交，在6921版本修复缺陷。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 870,
-      "problem": "升级了***API V1.62“20160617_***API V1.62(for正式)”的补丁后，发现***报盘起不来，报&quot;金仕达期货v6交易接口框架程序2 已停止工作“的错。",
-      "solution": "查了下几个dll文件和exe的版本都没问题，不过发现他们家升级包解压有问题，解压出来的补丁里面就一个libCFFEXtraderapi.dll的文件，之前也有期货公司因为输错密码解压出来的包有问题，导致升级出现问题的情况。这块需谨慎！收盘后，重新升级就OK了。",
+      "problem": "客户反馈交易员连的其中一套V8T高速行情有部分合约看不到行情，看cmds下的日志有报：“No enough MAXMDRECS(4000) to load KSHQRECORD”的现象",
+      "solution": "根据情况将cmdserver下的XSGE、XDCE、XCZE、CFFX文件夹删除，然后将cmdsserver\\MDFuture下的后缀dbf文件删除。为了避免以后再出现类似现象，可以在cmdsserver\\MDFuture下的futeifhq.ini文件FUTHQ段最后配置load_dbf=0，这样历史的数据就不再处理了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 871,
-      "problem": "反应结算耗时较长，尤其是资金结算，要用到七八分钟。",
-      "solution": "用showplan看进程的时候，发现是在insert my_settle_cust_fund表的时候较慢，查看代码之后，发现代码是没有问题的，最后做了一次       reorg rebuild  my_settle_cust_fund 和cust_fund表，结算速度明显加快至两三分钟。",
+      "problem": "开资管一对一客户，最后保存或者提交时，提示‘资管客户托管银行信息不允许为空’。",
+      "solution": "咨询过其开户人员，的确是没有填写托管银行信息，但是资管一对一客户的托管银行是非必填项，可以选择不填。进一步排查，发现她在填写资管业务类型的时候选择了综合类，如果选择综合类则需要填写托管银行信息，解决方法就是选择期货类。最后开户成功。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 872,
-      "problem": "V6S0通过热备程序从V6S采集数据，但是昨天发现有些客户的入金情况没有备份过去。",
-      "solution": "但客户把cust_money_io表里今天的数据insert到V6SO里面去了,原因暂时不明",
+      "problem": "数据分发导出，无法将生成的v8t上场数据自动上传到v8t的初始化目录。",
+      "solution": "添加结算后台到v8t初始化文件服务器的ssh证书，另外在Opts结算后台 bccbin/batch/conf/filemove.sh，需要对这个脚本做一个dos2unix的*作。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 873,
-      "problem": "上交所检查市场参与者保送文件，发现两点数据异常： 1.报备账户重未开户 2.已开账户未报备的问题 上交所要求，尽快查明原因并做出相应修改。",
-      "solution": "1.报备账户未开户 解决方法：opts结算柜台，做合约账户系统内销户  2.已开账户未报备的问题 解决方法：opts结算柜台，一站式开户，输入客户号，从签署合同开始做，做到向中登报送开合约户，这步不做。直接用另外的菜单，合约账户系统内下挂，将合约账户直接下挂到系统后台表中，绕过中登。",
+      "problem": "客户通过终端查询客户历史成交，无返回结果，外围网关日志报找不到120503功能号。",
+      "solution": "SPX网关设置，路由功能设置，选择cpack功能路由，添加120503的配置项。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 874,
-      "problem": "资管系统从期货后台拉数据同步导入到资管系统中，发现期货和资管系统中的数值不一致，期货端指的是S柜台的当前费率查询，资管系统中指网关和API取值；",
-      "solution": "S系统投资者保障基金，免收设置中加了该客户，T系统中免收设置中没有加，同时我们的免收设置表except_cust_list是不会数据分发的；",
+      "problem": "客户在测试环境进行sybase数据库load时报错:&quot;Data on dump will not fit into current database. Need 90000 Mbyte database&quot;；&quot;Unrecoverable I/O or volume error.This Dump or Load session must exit&quot;",
+      "solution": "备份的库有进行了扩库，测试环境的数据库没有，让客户将测试数据库进行扩库然后load数据库即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 875,
-      "problem": "柜台==〉‘生产财务接口’界面点击生产按钮报错“输出到文本错误！”如果在生产的过程中，把下拉条往下拉还会报错“错误2，借贷不平，可能是财务科目设置有误”",
-      "solution": "升级了6916就会有这个问题，季公改了一下p852225，在后台刷一下就ＯＫ了，ｓｐ见附件　～",
+      "problem": "反映v8t系统做完初始化之后，警告信息里，有一条信息是“表cust_fixed_margin数据出错，v6导出条数为96938，v8导入条数为96650",
+      "solution": "对于此问题，v8t其实不用系统做任何处理，可以继续下一个交易日的交易。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 876,
-      "problem": "反映在为开户客户提交资料的时候，有时候在提交完资料之后，柜台“开户申请”界面查不到该客户信息。（注意，这个和***6916版本里发生的原因不同）",
-      "solution": "目前来说，此问题发生是小概率事件，一旦出现了此情况，目前只能先用删除客户资料的脚本进行处理，然后重新录入客户的资料并提交。已提交QC，在后续的6921版本里会解决此问题。",
+      "problem": "***测试环境升级过银期平台1.0.3.10银期接口自动化运维的包之后，出现好几个问题。1.开银期监控的时候报错：获取定时*作信息出错！2.设定windows定时任务启动银期监控时会弹出登录框要求输入*作员密码，输入之后点击确认也会显示错误，无法登陆；3.柜台【银行接口管理设置】界面查询各个银期接口的签到状态和签到日期时，发现只有***银行可以查得到，交通银行和汇丰银行查询不到（bank_func这张表里面就只有***银行的信息）。",
+      "solution": "1.是因为客户没有在【银行接口管理设置】界面设置定时的*作，也就是说升级这个银期平台1.0.3.10包之后，必须要设置定时的*作才可以开启银期监控。2.开发那边正在准备用一个定时工具来开启银期监控，不用windows定时任务。3.一开始跟开发反馈，开发觉得是客户那边环境配置的问题，这2个银行连的不是同一个环境，但是客户确认环境没有问题，而且反馈说他们生产环境bank_func这张表也只有***银行有信息。之后再找开发反馈。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 877,
-      "problem": "反映在点金手界面，点开“资金划转”菜单，菜单下拉列表无法正常显示。",
-      "solution": "两种方式：1.刷上6916的临时解决脚本： update  dictionary set  dict_caption = 'Midas,4,9,*,A1B1C1,5,30,5000,' where  dict_no = 5006 and dict_value = '22' go 2.将网关配置文件fspxswitch.ini里，将委托方式配置正确，其内容为上述的“Midas,4,9,*,A1B1C1,5,30,5000,”内容。",
+      "problem": "反映在更新了开户申请附加资料里的银行账号的开户支行信息之后，该信息没有同步到柜台的“报送客户银行账号设置”界面。",
+      "solution": "如果柜台的开户申请附加资料里的银行开户支行信息做了修改，那么在“报送客户银行账号设置”界面，需要手工去修改支行信息。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 878,
-      "problem": "客户在历史库刷6916-3_筛选休眠客户优化补丁包时报找不到表sleep_cust_his",
-      "solution": "经查表sleep_cust_his是在包《20110318_P84后续补丁_16（For 正式）》创建的，如果当时没有创建历史库，那么后面就得重新找到包里的altertable_his刷下即可。",
+      "problem": "反映生成报送文件的时候，缺少amaccounts文件，即综合类资产管理业务投资账户文件。",
+      "solution": "需要用和当前版本匹配的最新配置文件ZJHBS(4.2.1).ini。先融期货就是因为文件版本低导致上述问题现象的发生。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 879,
-      "problem": "客户在用V8T-I的交易员下了多个开盘触发条件单，退出条件单窗口重新进来，选中一条记录然后进行多选，交易员就报错退出了。",
-      "solution": "经测试验证确实存在此现象，目前已经提交BUG，会在***的8311版本以及8316、8401、8402版本进行修复。",
+      "problem": "统一开户报错，监控中心返回信息：组织机构代码与现有客户重复",
+      "solution": "检查资料最后发现客户的名称录入错误，修改之后重新复核上报即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 880,
-      "problem": "***证券测【最大可开仓手数（6044）、最大可平仓手数（6068）】联调发现，下商品期货上期所、大商所报【取交易类别失败】错误，错误码是【-1184959584】。",
-      "solution": "原因是因为合约选的不正确，应该是测试系统柜台设置的问题，看到他家cpack包里记录的 scert_addr:&quot;V1609&quot; 新合约号 、scust_auth:&quot;V1609&quot; 老合约号里，不是合约大小写有问题就是合约这里显示的只是单品种。合约修改正确后就OK了！",
+      "problem": "仿真环境做柜台客户入金时报错：8602002，查询客户资金失败：",
+      "solution": "t的数据库刷一下CheckCurrencyValid这个sp即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 881,
-      "problem": "升级完V6S6916后，点金手Midas8.0.20140307.1的版本，点资金划转菜单没有任何反应，不弹框不显示。点金手设置界面的密码修改菜单，显示丢失了。",
-      "solution": "更新了20151103_Midas8.0.20151102.1_点金手版本后情况也一样！原因是因为我们6916柜台数据字典最后一项，网关委托方式里的Midas，M应该是大写，小写的话读取不到权限串会有影响，测试部比对网关看到老网关都是小写。目前开发提交的脚本测试已经通过了。之后会进行发布！",
+      "problem": "反映在v8t交易管理上的“实时资***息查询”界面，如果用一个超户勾选某一个客户类条件进行查询，会出现报错：“*作员对该客户类无*作权限”的报错。",
+      "solution": "在目前v8t的发布版本里，交易管理界面，风控终端和交易员做在查实时资金的时候选择客户类条件，都会有这个问题，是属于一个bug，和徐蔚确认在8401版本里已经解决了该问题。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 882,
-      "problem": "升级了V8T8313P1-P4及后续大连短线优惠的补丁，初始化一切顺利，问题是风控柜台查询客户资金模块，不选客户类的情况下正常可以查询，选择客户类后无法正常查询，报“错误：321400135，[*作员对该客户类无*作权限]不允许进行当前功能”。升级前及升级后的版本都测试过，均报一样的错误。登录的*作员是有权限的，可以看见所有分类。查询其他项，如委托、成交、持仓都没有问题，总体查询和分类查询都正常。",
-      "solution": "此问题开发修复在V8T8401里。",
+      "problem": "风控终端上，客户风险通知中昨日风险级别和当日风险级别如果同时勾选是怎么一个关系，如果只选择一个是怎么一个关系",
+      "solution": "1、当同时勾选的时候，即表示要同时满足两个风险级别的客户才进行风险的通知。 2、当选择了某一个的时候，代表只要满足其选择的，即进行风险通知。 3、风险通知的发出通知类型是按照当日的 cust_real_fund中的客户风险级别。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 883,
-      "problem": "客户做银期出金，两个客户都出金5万，都失败了，失败信息‘银行返回代码：EB097 无法识别’。",
-      "solution": "原因不明",
+      "problem": "目前云开户中，当交易编码从交易所申请下来之后，客户完成开户的状态信息是否会推送给云平台",
+      "solution": "目前当交易编码申请成功，然后完成的状态推送,但是只推送当***功的客户，判断依据在于cust_map中的 add_date=传入日期",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 884,
-      "problem": "***这两天发现***1.62那个接口早上开盘的时候不会刷到开盘状态，开盘后还是下不了单，看接口状态还是“开市”，重启了接口才能收到开盘状态下单，他问其他期货公司没有这反映？",
-      "solution": "他们家V6S上已经升级了6914-1***席位不更新的补丁包，但他家表示自己用的是V8T-I的接口，在V8T-I上交易发现的。其实V8和V8T-I都有这个问题，而我们报盘机的机制其实是一样的，V6、V8、V8T-I都能用，我们V8没有发布过此修复包，所以我拿了V6S包里的报盘更新给他们家用，用完解决此问题。",
+      "problem": "目前API是否可以使用在机构版1.5版本上",
+      "solution": "目前机构版15版本上不能支持API，因为有点后台相关的内容和目前API不太一致，如果想要在机构版上使用 API，建议机构版进行分离，上V8T-I的版本，该版本上支持API",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 885,
-      "problem": "升级了***API V1.62“20160617_***API V1.62(for正式)”的补丁后，发现***报盘起不来，报&quot;金仕达期货v6交易接口框架程序2 已停止工作“的错。",
-      "solution": "查了下几个dll文件和exe的版本都没问题，不过发现他们家升级包解压有问题，解压出来的补丁里面就一个libCFFEXtraderapi.dll的文件，之前也有期货公司因为输错密码解压出来的包有问题，导致升级出现问题的情况。这块需谨慎！收盘后，重新升级就OK了。",
+      "problem": "柜台==〉互联网开户锁定解锁，点击解锁按钮就弹框报错“*作错误，Field ‘SCUST_NO2’not found &quot;",
+      "solution": "柜台前端的bug，已经提交紧急bug~QC号： 19512",
       "source": "日常运维QA（已满）"
     },
     {
@@ -2406,182 +2406,182 @@
     },
     {
       "id": 901,
-      "problem": "仿真环境，深圳市场，V8T能取到期权的行情，但是取不到现货的行情，导致强平失败。",
-      "solution": "修改cmds配置文件： //深圳证券  MDUNIT5=V5B,0,|XSHE|,MDUV5B\\MDUV5B //深圳证券 MDUNIT6=SJSHQ,0,|XSHE|,MDUSJS\\MDUSJS 启用MDUSJS。 另外MDUSJS文件夹下的sjshq.ini 修改FXRECVPATH=行情文件路径 深交所行情文件为securities_YYYYMMDD.xml",
+      "problem": "条件单终端显示信息“收到数据请求[未知功能好[854081]]”",
+      "solution": "正常~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 902,
-      "problem": "风控终端上的客户明细持仓监控，某客户当日买开上限是有值的，但是当日开仓上限为0，该客户明显有做开仓*作，为什么当日开仓上限为0.",
-      "solution": "无需解决。",
+      "problem": "柜台==〉“实时委托”界面显示14：39左右报错“该席位目前没有处于开盘状态”",
+      "solution": "正常情况，客户查询*作日志，是客户在非交易时间段进行了撤单*作~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 903,
-      "problem": "反映配置了终端上的kshqdll.ini里的dns服务器的主和备的信息之后，如果主的dns服务器挂掉情况下，从日志上看到，终端并没有连备的dns服务器。",
-      "solution": "需要检查终端下的kshq_cmds.dll文件是否为最新文件，如果不是最新的dll，需要替换最新的cmds2里的该dll文件即可解决该问题，具体补丁包为“20160512_CMDSIII_V2完整安装包”。",
+      "problem": "文华客户端的客户登陆报错“没有多点登陆的权限”",
+      "solution": "在网关上面踢掉报错的客户，再登陆即可~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 904,
-      "problem": "反映原先修改了***所最后交易日结算价问题之后（原先问题见wiki2981），国债品种的结算价在最后交易日那边变得不正确了，价格变成了只精确到小数点后2位，而本应该是3位的。",
-      "solution": "已确认是开发原先在修改p854081的时候没有将条件限定好，后续已提交v6s6916和v6t1316的紧急bug，qc：10017，10018。",
+      "problem": "交易结算网关报错“发送数据失败！--通讯平台未连接”以及“结算系统接收请求出错，可能连接已断开”",
+      "solution": "重启交易结算网关，已经v6s的drtp即可~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 905,
-      "problem": "咨询在柜台的“互联网开户锁定解锁”界面上查不到之前几个客户号的记录",
-      "solution": "柜台上此界面的查询功能只能查到被锁定的客户，所以就会有这个现象。 顺便提一下，如果要查解锁客户的记录，必须后台查看。 附带查询解锁客户的语句： select * from pre_web_cust_no where if_freeze='1'",
+      "problem": "把网关拷贝到另一台机器上面，然后改了一下配置，启动后报错：无法连接可*推送服务器~",
+      "solution": "他们勾选了可*推送，去掉可*推送，重启即可~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 906,
-      "problem": "***反映在做互联网开户的时候，点击获取资金账号之后，界面提示“获取资金账号成功”，但云开户界面上无法查到获取到的资金账号。",
-      "solution": "升级到6916版本的公司，需要重新设置互联网开户的号段，具体涉及到柜台两个界面的设置：1.客户号段设置；2.互联网开户默认设置",
+      "problem": "V8T风控的资金强平策略里面，判断依据选‘保证金占用’后计算公式默认是‘保证金/客户权益’且是灰色的，无法选其他的。而在V8T和风控的风险监控界面计算公式都是‘客户权益/保证金’。",
+      "solution": "这个是在8313包里面增加的，后台写死的，取的不是V8T里面的，跟V8T和风控的风险监控界面里的无关，单独对客户设置的。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 907,
-      "problem": "反映v8t在升级到8313版本之后，交易管理的“客户交易合规设置”界面上设置的数据会丢失，但以前时候这些设置都是一直存在的。",
-      "solution": "v6s柜台上必须在“客户合规交易控制”界面进行设置。",
+      "problem": "同步程序V6S初始化日期是16号，但是当前最新同步流水日期是15号。",
+      "solution": "正常。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 908,
-      "problem": "持仓结算报错：处理平仓时插入临时平仓明细表出错Message number  515.....Procedure  'deal_cust_offset' insert NULL  value  into  cust_name........",
-      "solution": "修改或者删除cust_hold里面cust_name字段为空值的数据~",
+      "problem": "结算时总的保证金数据都能对上，但是有个客户的一条持仓记录保证金为‘-0.01’，为负值了。",
+      "solution": "修改了客户的保证金率",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 909,
-      "problem": "咨询目前金仕达系统有没有一个功能，即在生成结算单之后，将结算单以邮件形式发送给客户？",
-      "solution": "目前邮件服务器是支持此功能的，需要安装邮件服务器相关补丁即可支持该功能。",
+      "problem": "云开户设置的问题。",
+      "solution": "云开户设置里的默认开户设置，可以按营业部增加客户号段，但是必须有一个是默认的，如果没有指定默认的客户号段，就以新增的客户号段为默认客户号段。开户时，如果有指定营业部代码则开相应的客户号段，如果没有指定营业部则进入默认客户号段。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 910,
-      "problem": "v6s数据分发导出做到10%卡死，重复做了多次都是相同的问题~",
-      "solution": "重启数据分发服务器即可~",
+      "problem": "结算手工交割，录好手数和交割结算价后，发现交割冻结保证金只收了一半",
+      "solution": "交割期保证金率调整截止日期只设到了前一天，手工添加交易合约后再调整交割期保证金率，重新结算；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 911,
-      "problem": "客户在仿真环境做***的交易，发现查持仓查不到数据。在客户端看日志可以看到客户的下单情况。",
-      "solution": "检查下来是客户在做14号以及16号的V8T盘后回导有问题，那几天的成交单查询中都查不到该客户的成交记录数据，而回导的文件中是有数据的，目前是让客户重新做那几天的回导，然后重新做结算。",
+      "problem": "想查V8T成交的ip和mac",
+      "solution": "首先根据交易内存库ttentrust（实时委托信息查询），查到该笔委托的entrust_session（下单会话号），对应去门户内存库看ttcustsession（客户会话管理）中的session_id（会话session），对应找到login_ip和login_mac；如果entrust_session是0的话，表示不是从客户终端做的委托，应该是交易员或风控终端做的强平，此时可以看委托对应的*作员来验证，必定不是网关*作员。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 912,
-      "problem": "客户仿真环境搭建sybase,将好用sybase-12_5下的文件完整拷贝过来发现启动失败。报“ kernel  Cannot allocate resources for listener with protocol tcp, host 192.168.0.16, port 2048, engine 0. ；kernel  Cannot start any network listeners. ；kernel  ueshutdown: exiting ”。",
-      "solution": "检查下来客户的/etc/hosts下的本地IP用的是127.0.0.1，让客户修改为本地IP地址，重启就好了。",
+      "problem": "门户总线启动有异常，启动时mode分别是1和3，将主节点切换成2时，该节点就会挂掉，同时备节点会变成2，反复修改kmq.ini和启停环境都不行；",
+      "solution": "解决：将门户总线主备数据重命名，重启环境，就能正常启动和切换了；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 913,
-      "problem": "客户在个股环境进行撤单，发现撤单状态仍然是等待撤除。",
-      "solution": "通过排查大致情况是这个客户有5手仓，先成交了1手，然后客户进行了撤单，在撤单过程客户成交1手，而成交的回报比撤单回报回来得早，系统程序以为回来的是撤单回报，于是将后台记录打上标记。目前确定是BUG，研发将在8316P3、8401和8402版本修复。",
+      "problem": "V6S升级6916之后，盘后证监会数据文件生成时报错：“银行账号有重复记录，请到“报送银行账号设置“中，重新设置再报送。",
+      "solution": "将V6S【柜台管理】-【报送客户银行账号设置】界面里检索重复账号，将银行账号带-和不带-的客户做了处理，保留正确的记录，删除一些异常的记录，就可以证监会数据文件生成了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 914,
-      "problem": "风控终端关闭退出时候容易出现漏斗，只能强杀，再登陆就提示*作员已登录，还需要对*作员做踢出*作，很麻烦。 ***的版本是V8T8312P11",
-      "solution": "昆仑在***的版本上重新编译了程序，对退出处理做了优化，并优先做*作员录出。同样的修改他已经在8401中提交。给***的程序见附件。",
+      "problem": "升级了6916里的网关，版本是1.98 2016.331. 结果发现客户端上大连品种行情品种价格位数有问题",
+      "solution": "这个版本的网关去掉了品种价格位数配置项，直接是给后台信号，从后台调用854264，返回该品种的最小变动价。***的问题出在调用854264时没有返回结果。       原因是最后交易日表里没有大连的合约的记录，后来的解决办法是重新点了计算交易日，这样一来，最后交易日表里就有了大连的记录。然后客户端那边的大连行情就显示正常了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 915,
-      "problem": "风控终端关闭退出时候容易出现漏斗，只能强杀，再登陆就提示*作员已登录，还需要对*作员做踢出*作，很麻烦。 ***的版本是V8T8312P11",
-      "solution": "昆仑在***的版本上重新编译了程序，对退出处理做了优化，并优先做*作员录出。同样的修改他已经在8401中提交。给***的程序见附件。",
+      "problem": "3月18号给客户做质押的时候*作有误，质押金额有变动，亏损了，导入记录复核的时候把质押手数填了，导致变成质出*作了。后来6月6号实际做质出*作了，但是现在结算单上质押状况这里一直有一条记录，质押手数和质押金额是负数。",
+      "solution": "让客户提脚本需求，把6号那天之后的结算单上这条记录都删除.",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 916,
-      "problem": "仿真环境，深圳市场，V8T能取到期权的行情，但是取不到现货的行情，导致强平失败。",
-      "solution": "修改cmds配置文件： //深圳证券  MDUNIT5=V5B,0,|XSHE|,MDUV5B\\MDUV5B //深圳证券 MDUNIT6=SJSHQ,0,|XSHE|,MDUSJS\\MDUSJS 启用MDUSJS。 另外MDUSJS文件夹下的sjshq.ini 修改FXRECVPATH=行情文件路径 深交所行情文件为securities_YYYYMMDD.xml",
+      "problem": "仿真互联网开户，云平台那边开户成功并提交复核了，但是金仕达系统里‘开户申请’和‘申请上报管理’里面都查询不到记录。",
+      "solution": "升级有问题。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 917,
-      "problem": "风控终端上的客户明细持仓监控，某客户当日买开上限是有值的，但是当日开仓上限为0，该客户明显有做开仓*作，为什么当日开仓上限为0.",
-      "solution": "无需解决。",
+      "problem": "仿真6914版本，反映说当天给客户入金后，客户能够正常做交易，但是结算后客户的资金就没了。",
+      "solution": "让其在第二天重新对这些客户提交复核。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 918,
-      "problem": "反映配置了终端上的kshqdll.ini里的dns服务器的主和备的信息之后，如果主的dns服务器挂掉情况下，从日志上看到，终端并没有连备的dns服务器。",
-      "solution": "需要检查终端下的kshq_cmds.dll文件是否为最新文件，如果不是最新的dll，需要替换最新的cmds2里的该dll文件即可解决该问题，具体补丁包为“20160512_CMDSIII_V2完整安装包”。",
+      "problem": "网关重启，在V8T*作员会话管理里面*作员登陆信息未更新，登陆时间还是以前的。",
+      "solution": "暂时原因不确定，只能后续如果还有这个问题，及时联系我们这边远程看一下。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 919,
-      "problem": "反映原先修改了***所最后交易日结算价问题之后（原先问题见wiki2981），国债品种的结算价在最后交易日那边变得不正确了，价格变成了只精确到小数点后2位，而本应该是3位的。",
-      "solution": "已确认是开发原先在修改p854081的时候没有将条件限定好，后续已提交v6s6916和v6t1316的紧急bug，qc：10017，10018。",
+      "problem": "***期权是否支持市价指令",
+      "solution": "交易所回复，不支持！",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 920,
-      "problem": "咨询在柜台的“互联网开户锁定解锁”界面上查不到之前几个客户号的记录",
-      "solution": "柜台上此界面的查询功能只能查到被锁定的客户，所以就会有这个现象。 顺便提一下，如果要查解锁客户的记录，必须后台查看。 附带查询解锁客户的语句： select * from pre_web_cust_no where if_freeze='1'",
+      "problem": "***今天做统一开户的客户激活上报的时候，发现有一个客户有问题，他们发现那个客户激活上报反馈是成功，但是客户状态并没有变为正常状态，还是只可平仓状态。",
+      "solution": "我来说明一下整个事件的情况： 1、 他们11点08分发起第一次的激活申请，***、郑州很快反馈成功，但是大连交易所一直到下午3点多才有回复。 2、 他们在11点09多的时候，查了过休眠状态，这个时候他们的状态是5，即正在激活上报。 3、 随后他们做了一次应急处理，把原状态是正在激活上报改为了可激活，为啥不知道。。。然后再进行第二次激活上报，这次的激活上报的结果是失败。这个时候失败的返回，我们系统会将客户的状态改为已休眠，所以这个就是他们说为啥看见啥自动改为了已休眠的状态，其实就是他们实际*作引起的。故第三次和第四次的激活申请的结果都是失败。 4、 目前他们已经手工的将客户的状态改为了正常，也已经告知他们家技术张文勋问题原因点。他会和他们*作人员说明该情况",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 921,
-      "problem": "***反映在做互联网开户的时候，点击获取资金账号之后，界面提示“获取资金账号成功”，但云开户界面上无法查到获取到的资金账号。",
-      "solution": "升级到6916版本的公司，需要重新设置互联网开户的号段，具体涉及到柜台两个界面的设置：1.客户号段设置；2.互联网开户默认设置",
+      "problem": "模拟交易所，版本6.8.2015.108，客户反映夜盘过了0点，***就无法下单，报错不在交易状态；",
+      "solution": "黄琼英改了个版本给她试试；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 922,
-      "problem": "反映v8t在升级到8313版本之后，交易管理的“客户交易合规设置”界面上设置的数据会丢失，但以前时候这些设置都是一直存在的。",
-      "solution": "v6s柜台上必须在“客户合规交易控制”界面进行设置。",
+      "problem": "初始化后V6T上依然有上一日的错误行情。",
+      "solution": "修改cmdserver\\MDUFuture这个下的futeifhq.ini里的eod这个配置项，修改时间到夜盘初始化前。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 923,
-      "problem": "持仓结算报错：处理平仓时插入临时平仓明细表出错Message number  515.....Procedure  'deal_cust_offset' insert NULL  value  into  cust_name........",
-      "solution": "修改或者删除cust_hold里面cust_name字段为空值的数据~",
+      "problem": "二席客户在主席系统柜台管理手工做客户入金，资金类型选择“公司调整”，CTP同步程序没做该笔资金同步。",
+      "solution": "原因是因为这个客户入金是在13:19分左右，而复核时间是在15:34分，由于CTP系统同步是同步系统最大流水，导致这笔复核就不做同步了。 处理：提交开发修改。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 924,
-      "problem": "咨询目前金仕达系统有没有一个功能，即在生成结算单之后，将结算单以邮件形式发送给客户？",
-      "solution": "目前邮件服务器是支持此功能的，需要安装邮件服务器相关补丁即可支持该功能。",
+      "problem": "二席客户在主席系统发起银期转账出金，CTP同步程序不做同步。",
+      "solution": "CTP同步程序对于二席客户在主席系统直接发起银期转账出金的是不做同步。 所做的同步是：柜台出入金、银期入金、 银期预约出金这些都是同步的",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 925,
-      "problem": "v6s数据分发导出做到10%卡死，重复做了多次都是相同的问题~",
-      "solution": "重启数据分发服务器即可~",
+      "problem": "盘中v8t系统的biz_bu有异常，10:22:50分中途退出了。",
+      "solution": "已修改紧急包“20160606_V8T_8.3.1.3_P7”于20160606日提交给***技术人员。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 926,
-      "problem": "客户在仿真环境做***的交易，发现查持仓查不到数据。在客户端看日志可以看到客户的下单情况。",
-      "solution": "检查下来是客户在做14号以及16号的V8T盘后回导有问题，那几天的成交单查询中都查不到该客户的成交记录数据，而回导的文件中是有数据的，目前是让客户重新做那几天的回导，然后重新做结算。",
+      "problem": "机构版资金内转做复核的时候是报错：没有复核权限。但是*作员权限设置里面这个*作员是有资金内转的复核权限的。",
+      "solution": "还需要给这个*作员客户出入金的权限才行。让他加上了之后复核没问题。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 927,
-      "problem": "客户仿真环境搭建sybase,将好用sybase-12_5下的文件完整拷贝过来发现启动失败。报“ kernel  Cannot allocate resources for listener with protocol tcp, host 192.168.0.16, port 2048, engine 0. ；kernel  Cannot start any network listeners. ；kernel  ueshutdown: exiting ”。",
-      "solution": "检查下来客户的/etc/hosts下的本地IP用的是127.0.0.1，让客户修改为本地IP地址，重启就好了。",
+      "problem": "准备升级银期平台1030，关于三证合一，农行和交行接口需要做什么变动吗？",
+      "solution": "农行使用新接口，之前使用恒生前置机的老版本不支持；交行银行接口不需要做什么变动；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 928,
-      "problem": "客户在个股环境进行撤单，发现撤单状态仍然是等待撤除。",
-      "solution": "通过排查大致情况是这个客户有5手仓，先成交了1手，然后客户进行了撤单，在撤单过程客户成交1手，而成交的回报比撤单回报回来得早，系统程序以为回来的是撤单回报，于是将后台记录打上标记。目前确定是BUG，研发将在8316P3、8401和8402版本修复。",
+      "problem": "机构版上删除了某一客户的投机交易编码，事后发现该投机交易编码又重新加回来了，但是看*作日志，只有删除的*作而并没有增加的*作；",
+      "solution": "他盘中只删除了机构版上的交易编码，并没有删除V8T-I上的交易编码，盘后回导时cust_map会回导，将交易编码带回来；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 929,
-      "problem": "风控终端关闭退出时候容易出现漏斗，只能强杀，再登陆就提示*作员已登录，还需要对*作员做踢出*作，很麻烦。 ***的版本是V8T8312P11",
-      "solution": "昆仑在***的版本上重新编译了程序，对退出处理做了优化，并优先做*作员录出。同样的修改他已经在8401中提交。给***的程序见附件。",
+      "problem": "机构版1.5，柜台有个“导入套利组合文件”界面，现在没有了，点击显示没有实现的功能",
+      "solution": "这个功能是之前机构版有的，后来该功能合并到导入成交文件中了，该模块就去掉了；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 930,
-      "problem": "风控终端关闭退出时候容易出现漏斗，只能强杀，再登陆就提示*作员已登录，还需要对*作员做踢出*作，很麻烦。 ***的版本是V8T8312P11",
-      "solution": "昆仑在***的版本上重新编译了程序，对退出处理做了优化，并优先做*作员录出。同样的修改他已经在8401中提交。给***的程序见附件。",
+      "problem": "V6S是6915，V6T刚升级了1313，做数据回导报错“出错！30004，表bcp_trade_contract的contract_name字段长度比接口的短！表：20，接口：21”；检查了S和T两边的数据分发版本都是要求的1.9；",
+      "solution": "V6S有张表v6tmp_trade_contract表中contract_name字段是20位，强行alter table到21位就好了；",
       "source": "日常运维QA（已满）"
     },
     {
@@ -2634,7 +2634,7 @@
     },
     {
       "id": 939,
-      "problem": "柜台==〉“客户资料查询”界面查询的时候报错：“List  index  out  of bounds（41）”",
+      "problem": "柜台==〉“客户资料查询”界面查询的时候报错：“List  index  out  of bounds（41）”",
       "solution": "在“设置系统参数”界面把“JYZXXS”参数改为“1”即可~",
       "source": "日常运维QA（已满）"
     },
@@ -2676,182 +2676,182 @@
     },
     {
       "id": 946,
-      "problem": "客户咨询V8T功能号3110005、3110006代表什么。另外V8T每日运维向导清理历史数据都是默认保留一月，之前的都清理掉，客户希望能保留半年的历史数据。",
-      "solution": "3110005是资金账号登录，3110006时资金账号录出。交易参数DATA_KEEP_PERIOD可配置清理历史数据的天数。",
+      "problem": "反映某*作员进行了客户资料录入，之后点击了保存，结果发现该*作员在开户申请界面上查不到该客户信息。",
+      "solution": "目前已有临时修改的p859551。如有客户需要可以临时刷上此sp。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 947,
-      "problem": "高速行情V2.0里面KsFtQtPub行情对外接口_cmds目录下的  kshqdll.ini没有可以配置接收udp广播的地方，把公共组件包里面的kshqdll.ini拷过去之后可以用。是不是KsFtQtPub行情对外接口_cmds目录下的配置文件版本不对?质疑这个目录是不是1.0的版本。",
-      "solution": "这个KsFtQtPub行情对外接口_cmds和公共组件下的都是统一的版本,这里需要拿公共组件里的ksqhdll.ini全部覆盖到KsFtQtPub行情对外接口_cmds这个第三方的接口下，然后配置即可。",
+      "problem": "反映有一*作员前一天做了保证金率复制的*作，但在柜台的费率修改查询界面上查不到该*作记录。",
+      "solution": "保证金做过的增删改和复制*作，请到柜台的“*作日志管理”界面进行查询。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 948,
-      "problem": "仿真系统初始化卡住了，重启机器后门户就起不来了，手动启动看到日志中有报错系统状态为初始化中，交易管理上修改的话会报错“通讯错误”",
-      "solution": "后台修改update tt_trade_para set para_value =‘2’ where para_code=‘sysstatus'，重做初始化",
+      "problem": "门户总线主节点无法正常启动~",
+      "solution": "1.把门户主备节点的进程先全部杀掉~2.更改主门户总线kmq.ini里面的 mode=2/*工作模式，1为单模式主节点，2为主备模式的主节点，3为备节点*/3.更改备门户总线kmq.ini里面的 mode=3/*工作模式，1为单模式主节点，2为主备模式的主节点，3为备节点*/4.正常启动服务即可~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 949,
-      "problem": "在实时委托里看到的会话号，按这个会话号去查客户登陆，查到的另外一个客户。",
-      "solution": "原因是该客户的和另外一个客户的会话号是一样的，产生这种情况是我们的b2b网关造成的。我们现在b2b网关后台分配会话号就是同一个网关同一个客户使用同一个会话号。但是不知道什么原因给不同的客户也分配了相同的会话号。",
+      "problem": "机构版结算***大单边没优惠",
+      "solution": "解决：机构版中设置交易品种IH的交割方式为实物交割，改成现金交割就优惠了；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 950,
-      "problem": "V8T实时持仓查询到的持仓数量比风控终端上监控到的权利仓已占用数量少。",
-      "solution": "无需解决。",
+      "problem": "良运期货反应5月26日当天有客户销户成功了，但是在生成证监会报送文件给监控中心时，客户账户状态仍然是“a”，即正常状态，而不是销户状态“d”。",
+      "solution": "重新生成了当天的证监会报送文件给监控中心即可。 原因：查看了柜台*作日志，当天是先生成证监会报送文件，再做结算中心客户销户校验的。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 951,
-      "problem": "opts结算柜台连接后台正常，但是打开任意菜单查询数据都会报错。",
-      "solution": "oracle数据库open_cursors过小。 show parameter open_cursors; alter system set open_cursors=值; commit; 之后再重启下oracle数据库， shutdown immediate; startup;",
+      "problem": "在风控终端发起短信邮件通知时，同步程序上报错，同步流水错误原因：未知的流水类型。",
+      "solution": "该问题属于设计缺陷，目前无需解决。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 952,
-      "problem": "***反馈，目前的柜台里缺少了交行最新更新的银行错误代码。",
-      "solution": "目前刘孝辉已经更新了交行最新的错误代码，如有期货公司反馈和需要，可以先让其临时刷一下刘孝辉写的脚本。同时，该问题已经向需求反馈，会出相应的需求变更，并且在后续的银期平台包里加入该内容。",
+      "problem": "通过opts柜台做银衍转账红冲蓝补*作，红冲的资金未体现到资金余额里，只是体现在了可用里，并且红冲的资金被计入了手工冻结资金的字段里。",
+      "solution": "修改营业部内部参数1711，将该值改成1，使银衍转账红冲蓝补变成实时出入金。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 953,
-      "problem": "机构版导入成交文件之后，成交单管理里面发现有几笔成交记录开平标志从平仓变成平今了。",
-      "solution": "结算参数SXF_ZZHYH设置成1了，让他改成0，然后删除之前导的数据，重新导入再结算即可。",
+      "problem": "交易结算网关报错：“发送所数据失败！-103，通讯错误”",
+      "solution": "重启了drtp，没有重启交易结算网关 ，只是做了录出，重启一下交易结算网关程序即可~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 954,
-      "problem": "银建期货在给某一客户在云平台开户的时候，客户号是自己指定的客户号，在提交客户资料的时候，始终报“互联网开户该客户还没预约，请先预约！”的报错，但该客户号实际上是并没有被使用过的。",
-      "solution": "必须严格按照云开户的顺序进行*作。第一步：视频验证。在视频验证这一步，需要进行客户号的获取，如果需要自动生成客户号，就直接点击界面上的“获取资金账号”按钮，即可自动获取客户号；如果是指定生成客户号，那么必须先在方框里输入客户号，然后再点击“获取资金账号”按钮，这样系统才会生成指定的客户号。如果已经产生了上述报错，那么必须先删除系统后台表pre_web_cust_no的该客户数据，然后再重新进行云平台上的开户*作。",
+      "problem": "柜台==〉“客户资料查询”界面查询的时候报错：“List  index  out  of bounds（41）”",
+      "solution": "在“设置系统参数”界面把“JYZXXS”参数改为“1”即可~",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 955,
-      "problem": "今天***（8313版本）V8T风控晚上进行风控通知的发送，发送后发现长时间没有反应，他们就把风控前台关闭，再次登陆进行发送的时候提示：错误：1002，有其他*作员正在进行风控通知*作，请稍后再试。随后处理完了之后，发现提示：错误，9994，BU组（BU0）忙碌：在限定时间3000毫秒内无空闲BU.这个时候我就让他们把环境停止之后，再开启一下，他们弄了之后，那个*作员又发送通知，然后又发生了和上面2个报错一样的情况。最后我是连接上去把TR_SYNC_INTER_PROCESS中数据删除，然后让他们重启环境的，后来没有再让那个*作员进行风险的通知，为了晚上夜盘可以继续下去，等他们夜盘开始之后，他们找了另外一个风控的人员进行风险的通知，发成功了。",
-      "solution": "最终查明问题，是因为当时那个风控的*作员在进行风险通知发送的时候，勾选了短信通知，但是他们家是没有这个功能的 ，导致在进行调用的时候 ，一直进行逻辑死循环，无返回信息！后续开发会进行修改，进行模块判断，如果没有短信功能，就报错。",
+      "problem": "休眠客户激活上报的时候总是提示，监控中心有一个进程在处理。",
+      "solution": "监控中心有一个进程在处理，必须要把监控中心的进程终止，才能继续上报。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 956,
-      "problem": "在仿真系统进行证监会报送的时候，提示报送数据未完整，请到出入金银行账号设置中进行完善，其仿真版本目前比较新，为beta版的6921",
-      "solution": "1、再未查明真正原因前，考虑到是测试系统，所以让他们把公司调整的资金冲销之后，重新按照转账的项进行增加复核。 2、查明原因之后，把最最新的853112的sp版本发给***进行更新，其最新版本是在p88-1版本中",
+      "problem": "用套保保证金率调整做仓单折抵之后，保证金不对。",
+      "solution": "用套保保证金率做仓单折抵时由于客户既有保值又有投机的持仓，不知道如何去分配这些持仓，        可以咨询交易所，得知两种属性持仓做套保保证金率调整的具体手数。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 957,
-      "problem": "转账权限设置界面相对所有客户进行修改，且只修改出金单笔最低限额。但是看不见修改的复选框！",
-      "solution": "将客户号清空后就能看见各个输入栏前有修改的复选框了。",
+      "problem": "客户反馈在V6S6913版本可以设置客户合规投保数量，但是在V6T无法设置。",
+      "solution": "V6T无法设置是当时发包时没合好相应的bpl文件导致，让客户替换下附件中的bpl文件即可。由于这个文件只是让此功能好用，可能会影响其他功能使用，建议使用完后让客户恢复文件。最好升级到V6T1316版本可支持。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 958,
-      "problem": "在V6S上变更过客户的客户类后，为什么V6T柜台中的“*作员与客户对应关系差异查询”界面查不出信息？",
-      "solution": "这个界面的查询内容是从表diff_class_cust中查询得到的。diff_class_cust这个表实在做V6T每日初始化导入时，由dispatch_follow_up.sql（数据分发后续处理）做数据生成的。生成时脚本会先对数据进行处理，在脚本中只处理2000条记录，剩下的记录就会插入到diff_class_cust表中让客户手工处理。一般会有如下提示'*作员与客户对应关系的差异还有未处理完的记录，到【*作员与客户对应关系差异处理】模块手工更新！' 否则的话这个模块就没有点进去做*作的意义了。",
+      "problem": "客户在仿真系统做***结算导成交文件报：“处理第[36]条数据出错！-接收数据阶段错误，后台返回：增加失败！Proceure'p852003'Attempt to insert duplicate key row in object 'file_seat_done' with unique index 'Index_1'”的现象。",
+      "solution": "根据报错现象应该是客户取得文件有问题，让客户重新上交易所网站下载一份新的，然后重新导入就好了。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 959,
-      "problem": "V8T仿真系统升级完***报盘“20150612_***报盘for仿真(V8T8301)”补丁包后，每天启动报盘时，报盘界面的“本地高优先级列【1931】”里会出现红色提示，给客户造成感觉是报盘拥堵。",
-      "solution": "已提交BUG,后续开发更改，可能会增加一项预警值的调整，让客户自己设置超过了这个预警值就会变红色，当前的版本是更改不了的。",
+      "problem": "客户反馈在V6S新增客户类后，通过热备采集无法往V6SO同步。",
+      "solution": "检查下来是采集的新增客户类数据在V6SO无法恢复。目前已经确认是R_p851027脚本代码问题，已经提交BUG在6921版本修复。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 960,
-      "problem": "新开客户当天在柜台做柜台入金提示“错误：-1061965286，根据传入的客户号【8888850022】和币种【1】找不到对应的资金账号”，无法做柜台入金*作。",
-      "solution": "升级到银期平台1.0.3.0以后，一担查不到客户可提就无法继续往下做柜台出入金，这个是开发做了调整。目前可以通过银期或者在交易系统上做应急开户解决。",
+      "problem": "客户5月19日晚上21：20分下了一笔委托2手m1701，但是在查持仓界面看到的该笔持仓就只有1手。客户用的客户端版本是6.45.20101213.1。",
+      "solution": "在6.45.20111111.1版本已经解决这个问题，让客户更新客户端即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 961,
-      "problem": "客户咨询V8T功能号3110005、3110006代表什么。另外V8T每日运维向导清理历史数据都是默认保留一月，之前的都清理掉，客户希望能保留半年的历史数据。",
-      "solution": "3110005是资金账号登录，3110006时资金账号录出。交易参数DATA_KEEP_PERIOD可配置清理历史数据的天数。",
+      "problem": "v8t的公司手续费率和v6里的什么手续费相对应。",
+      "solution": "v8公司手续费率精确到合约，如果该合约在v6s里设置了席位手续费率，那么公司手续费率=席位手偶续费+投资者保障金金费率。        如果该合约在v6s里没有设置，那么公司手续费率=公司默认标准手续费率。                                          延伸一下。V8里的客户手续费率，如果对客户的某一个合约单独设置了手续费，那么v8里的客户手续费率=v6里的客户手续费+投资者保障资金费率，        如果v6s里没有对这个客户单独设置合约的手续费率，那么v8里的客户手续费率=客户手续费模板。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 962,
-      "problem": "高速行情V2.0里面KsFtQtPub行情对外接口_cmds目录下的  kshqdll.ini没有可以配置接收udp广播的地方，把公共组件包里面的kshqdll.ini拷过去之后可以用。是不是KsFtQtPub行情对外接口_cmds目录下的配置文件版本不对?质疑这个目录是不是1.0的版本。",
-      "solution": "这个KsFtQtPub行情对外接口_cmds和公共组件下的都是统一的版本,这里需要拿公共组件里的ksqhdll.ini全部覆盖到KsFtQtPub行情对外接口_cmds这个第三方的接口下，然后配置即可。",
+      "problem": "大连的部分1605合约交割后，作持仓结算时总提示，没有结算价。",
+      "solution": "目前郑州和大连的报盘，需要勾选启用组合报单模式。 启用组合报单，可以把组合合约更新到v8t数据库。盘后回导之后就会把组合合约回导到v6s里。       他们家之所以结算时报错，就是以为组合合约里存在很多过期的合约，v6s本身合约自动初始化，会清空这些过期的合约，但是v8t的报盘没有启用组合报单模式       所以v8t的组合合约一直都是老的合约，盘后回导，就会覆盖v6s里组合合约表，最终导致报错。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 963,
-      "problem": "仿真系统初始化卡住了，重启机器后门户就起不来了，手动启动看到日志中有报错系统状态为初始化中，交易管理上修改的话会报错“通讯错误”",
-      "solution": "后台修改update tt_trade_para set para_value =‘2’ where para_code=‘sysstatus'，重做初始化",
+      "problem": "大连交割，未配对持仓保证金不知道如何处理。",
+      "solution": "交易所的处理方法是释放所有交割合约的持仓保证金，当买、卖方没有完全配对时，会把相应的保证金以分项资金的形式发给客户，这部分资金是交割待扣款，       在我们系统里，正常做交割业务，客户资金部分导分项资金，席位席位资金部分走出入金。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 964,
-      "problem": "在实时委托里看到的会话号，按这个会话号去查客户登陆，查到的另外一个客户。",
-      "solution": "原因是该客户的和另外一个客户的会话号是一样的，产生这种情况是我们的b2b网关造成的。我们现在b2b网关后台分配会话号就是同一个网关同一个客户使用同一个会话号。但是不知道什么原因给不同的客户也分配了相同的会话号。",
+      "problem": "通过外围程序pb系统进行撤单，但是撤单的时候网关有报错：查询委托单出错。",
+      "solution": "pb系统里席位号设置的虚拟席位future_seat，重新设置一下席位号，和柜台设的一致即可。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 965,
-      "problem": "V8T实时持仓查询到的持仓数量比风控终端上监控到的权利仓已占用数量少。",
-      "solution": "无需解决。",
+      "problem": "客户在搭测试环境，启动APP1服务发现显示多了APP2的功能号，启动APP2服务时显示又增加了APP1的功能号。导致显示了4个APP的功能号。",
+      "solution": "检查下来是客户ksmbcc.ini配置的server的IP设置有问题。将IP修改为本机的drtp地址即可。了解下来客户生产也是这么配置的，建议客户尽早把设置修改过来。",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 966,
-      "problem": "opts结算柜台连接后台正常，但是打开任意菜单查询数据都会报错。",
-      "solution": "oracle数据库open_cursors过小。 show parameter open_cursors; alter system set open_cursors=值; commit; 之后再重启下oracle数据库， shutdown immediate; startup;",
+      "problem": "二席同步程序报错“同步时插入失败”",
+      "solution": "ctp系统加一下权限",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 967,
-      "problem": "***反馈，目前的柜台里缺少了交行最新更新的银行错误代码。",
-      "solution": "目前刘孝辉已经更新了交行最新的错误代码，如有期货公司反馈和需要，可以先让其临时刷一下刘孝辉写的脚本。同时，该问题已经向需求反馈，会出相应的需求变更，并且在后续的银期平台包里加入该内容。",
+      "problem": "风控终端下强平单，显示有没有涨跌停价格",
+      "solution": "风控行情源配置错误",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 968,
-      "problem": "机构版导入成交文件之后，成交单管理里面发现有几笔成交记录开平标志从平仓变成平今了。",
-      "solution": "结算参数SXF_ZZHYH设置成1了，让他改成0，然后删除之前导的数据，重新导入再结算即可。",
+      "problem": "第三方B2B网关查保证金率，报错“期货合约表中不存在该合约代码”",
+      "solution": "他们网关是MYJ网关，更新成MD网关就可以了",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 969,
-      "problem": "银建期货在给某一客户在云平台开户的时候，客户号是自己指定的客户号，在提交客户资料的时候，始终报“互联网开户该客户还没预约，请先预约！”的报错，但该客户号实际上是并没有被使用过的。",
-      "solution": "必须严格按照云开户的顺序进行*作。第一步：视频验证。在视频验证这一步，需要进行客户号的获取，如果需要自动生成客户号，就直接点击界面上的“获取资金账号”按钮，即可自动获取客户号；如果是指定生成客户号，那么必须先在方框里输入客户号，然后再点击“获取资金账号”按钮，这样系统才会生成指定的客户号。如果已经产生了上述报错，那么必须先删除系统后台表pre_web_cust_no的该客户数据，然后再重新进行云平台上的开户*作。",
+      "problem": "证监会上报客户期货账户文件中，没有新开户的几个资管一对多客户的账户信息",
+      "solution": "客户报送银行账号界面手动添加客户托管银行即可；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 970,
-      "problem": "今天***（8313版本）V8T风控晚上进行风控通知的发送，发送后发现长时间没有反应，他们就把风控前台关闭，再次登陆进行发送的时候提示：错误：1002，有其他*作员正在进行风控通知*作，请稍后再试。随后处理完了之后，发现提示：错误，9994，BU组（BU0）忙碌：在限定时间3000毫秒内无空闲BU.这个时候我就让他们把环境停止之后，再开启一下，他们弄了之后，那个*作员又发送通知，然后又发生了和上面2个报错一样的情况。最后我是连接上去把TR_SYNC_INTER_PROCESS中数据删除，然后让他们重启环境的，后来没有再让那个*作员进行风险的通知，为了晚上夜盘可以继续下去，等他们夜盘开始之后，他们找了另外一个风控的人员进行风险的通知，发成功了。",
-      "solution": "最终查明问题，是因为当时那个风控的*作员在进行风险通知发送的时候，勾选了短信通知，但是他们家是没有这个功能的 ，导致在进行调用的时候 ，一直进行逻辑死循环，无返回信息！后续开发会进行修改，进行模块判断，如果没有短信功能，就报错。",
+      "problem": "设了保底资金，但是没有起效，客户还是完全出金了",
+      "solution": "银期转账参数YQZZYL这是个大开关，开启然后读取USEBDZJ，也开启才会去读取YQZZBDZJ设置的保底资金；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 971,
-      "problem": "在仿真系统进行证监会报送的时候，提示报送数据未完整，请到出入金银行账号设置中进行完善，其仿真版本目前比较新，为beta版的6921",
-      "solution": "1、再未查明真正原因前，考虑到是测试系统，所以让他们把公司调整的资金冲销之后，重新按照转账的项进行增加复核。 2、查明原因之后，把最最新的853112的sp版本发给***进行更新，其最新版本是在p88-1版本中",
+      "problem": "监控中心来电说他们上报的证监会文件中，客户的出入金类型不正确",
+      "solution": "已经在跟监管沟通，我们系统之后会加一个出入金类型；起因是单边帐调整时系统加的出入金类型和监管认为的不一致；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 972,
-      "problem": "转账权限设置界面相对所有客户进行修改，且只修改出金单笔最低限额。但是看不见修改的复选框！",
-      "solution": "将客户号清空后就能看见各个输入栏前有修改的复选框了。",
+      "problem": "V8T做data_pump时，会生成默认日期的文件（20100127），那么手动上传到文件服务器上的时候，需要改名称吗？",
+      "solution": "做安装初始化的时候，上传该文件不需要该名称；后续的手动data_pump时，上传到v8t/tr_fs/v8t/init_data时，需要改成初始化日期的文件，该路径下会有每天日期名称的data_pump文件；",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 973,
-      "problem": "在V6S上变更过客户的客户类后，为什么V6T柜台中的“*作员与客户对应关系差异查询”界面查不出信息？",
-      "solution": "这个界面的查询内容是从表diff_class_cust中查询得到的。diff_class_cust这个表实在做V6T每日初始化导入时，由dispatch_follow_up.sql（数据分发后续处理）做数据生成的。生成时脚本会先对数据进行处理，在脚本中只处理2000条记录，剩下的记录就会插入到diff_class_cust表中让客户手工处理。一般会有如下提示'*作员与客户对应关系的差异还有未处理完的记录，到【*作员与客户对应关系差异处理】模块手工更新！' 否则的话这个模块就没有点进去做*作的意义了。",
+      "problem": "条件单未做初始化，想查后台委托表看下昨天的数据",
+      "solution": "委托表basic_information，历史的是his_basic_information",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 974,
-      "problem": "V8T仿真系统升级完***报盘“20150612_***报盘for仿真(V8T8301)”补丁包后，每天启动报盘时，报盘界面的“本地高优先级列【1931】”里会出现红色提示，给客户造成感觉是报盘拥堵。",
-      "solution": "已提交BUG,后续开发更改，可能会增加一项预警值的调整，让客户自己设置超过了这个预警值就会变红色，当前的版本是更改不了的。",
+      "problem": "全结系统结算，会员持仓中看到保证金计算异常，本应形成***大单边优惠，但最后是一边收保证金，另一边保证金呈负值；",
+      "solution": "结算参数MS和MSXW改回默认值10，重做结算",
       "source": "日常运维QA（已满）"
     },
     {
       "id": 975,
-      "problem": "新开客户当天在柜台做柜台入金提示“错误：-1061965286，根据传入的客户号【8888850022】和币种【1】找不到对应的资金账号”，无法做柜台入金*作。",
-      "solution": "升级到银期平台1.0.3.0以后，一担查不到客户可提就无法继续往下做柜台出入金，这个是开发做了调整。目前可以通过银期或者在交易系统上做应急开户解决。",
+      "problem": "成交单管理界面，双击大连符合短线业务的开仓单，费率显示的是开平手续费率而不是平今手续费率。",
+      "solution": "提交需求了。",
       "source": "日常运维QA（已满）"
     },
     {
@@ -2862,8 +2862,8 @@
     },
     {
       "id": 977,
-      "problem": "二席资金同步程序报错：调用存储过程：pkg_FundManager.up_QryInvestorFundChanges  异常信息OCI-22303: type &quot;&quot;.&quot;TYPEINVESTORFUNDCHANGE&quot; not found",
-      "solution": "配置文件config.ini里面的：（，oracle连接信息里面   oracle用户使用   settlement）CTP二席目标数据源DataSource = (DESCRIPTION =(ADDRESS_LIST =(ADDRESS = (PROTOCOL = TCP)(HOST = 10.253.46.100)(PORT = 1521)))(CONNECT_DATA =(SERVICE_NAME = futures8))) ;CTP二席目标数据库用户名 UserId = settlement;CTP二席目标数据库密码Password = zyw",
+      "problem": "二席资金同步程序报错：调用存储过程：pkg_FundManager.up_QryInvestorFundChanges  异常信息OCI-22303: type &quot;&quot;.&quot;TYPEINVESTORFUNDCHANGE&quot; not found",
+      "solution": "配置文件config.ini里面的：（，oracle连接信息里面   oracle用户使用   settlement）CTP二席目标数据源DataSource = (DESCRIPTION =(ADDRESS_LIST =(ADDRESS = (PROTOCOL = TCP)(HOST = 10.253.46.100)(PORT = 1521)))(CONNECT_DATA =(SERVICE_NAME = futures8))) ;CTP二席目标数据库用户名 UserId = settlement;CTP二席目标数据库密码Password = zyw",
       "source": "日常运维QA（已满）"
     },
     {
@@ -2970,7 +2970,7 @@
     },
     {
       "id": 995,
-      "problem": "***清算持仓结算的时候报错：procedure 'cffex_hold_settle' can't allocata  space  for  object  .........",
+      "problem": "***清算持仓结算的时候报错：procedure 'cffex_hold_settle' can't allocata  space  for  object  .........",
       "solution": "数据库空间满了~ 扩库就ＯＫ了　　～！",
       "source": "日常运维QA（已满）"
     },
