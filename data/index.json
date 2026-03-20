@@ -1,10 +1,10 @@
 {
-  "update_time": "2026-03-20T13:44:47.332497",
-  "total_count": 5911,
+  "update_time": "2026-03-20T21:25:16.455503",
+  "total_count": 5918,
   "source_stats": {
-    "日常运维QA": 45,
-    "日常运维QA（已满）": 5154,
-    "日常运维QA（记这个）": 712
+    "日常运维QA": 35,
+    "日常运维QA（已满）": 5163,
+    "日常运维QA（记这个）": 720
   },
   "chunk_count": 12,
   "chunk_size": 500,
@@ -67,7 +67,7 @@
     {
       "index": 11,
       "file": "chunks/chunk_11.json",
-      "count": 411
+      "count": 418
     }
   ]
 }
