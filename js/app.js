@@ -1,6 +1,6 @@
 /**
- * 日常运维QA搜索系统 - 前端逻辑 v2.1
- * 功能：分片加载、表格/卡片双视图、缩略/完整展示切换、详情弹窗
+ * 日常运维QA搜索系统 - 前端逻辑 v2.2
+ * 功能：分片加载、全量搜索、表格/卡片双视图、缩略/完整展示切换
  */
 
 // 配置
@@ -25,7 +25,8 @@ let state = {
     isLoading: false,
     viewMode: 'table',
     displayMode: 'compact',
-    isMobile: window.innerWidth <= 768
+    isMobile: window.innerWidth <= 768,
+    allLoaded: false  // 是否已加载全部数据
 };
 
 // DOM 元素缓存
@@ -105,7 +106,34 @@ async function loadChunk(chunkInfo) {
     });
     
     state.loadedChunks.add(chunkInfo.index);
+    
+    // 检查是否已加载全部
+    if (state.loadedChunks.size >= state.indexData.chunk_count) {
+        state.allLoaded = true;
+    }
+    
     updateSources();
+}
+
+// 加载所有分片（用于搜索）
+async function loadAllChunks() {
+    if (state.allLoaded) return;
+    
+    const chunksToLoad = state.indexData.chunks.filter(c => !state.loadedChunks.has(c.index));
+    
+    if (chunksToLoad.length === 0) {
+        state.allLoaded = true;
+        return;
+    }
+    
+    showLoading('正在加载全部数据用于搜索...');
+    
+    for (const chunkInfo of chunksToLoad) {
+        await loadChunk(chunkInfo);
+    }
+    
+    state.allLoaded = true;
+    hideLoading();
 }
 
 // 更新来源列表
@@ -155,7 +183,6 @@ function bindEvents() {
         render();
     });
     
-    // 视图切换
     elements.viewToggle.forEach(btn => {
         btn.addEventListener('click', () => {
             if (state.isMobile) return;
@@ -166,7 +193,6 @@ function bindEvents() {
         });
     });
     
-    // 展示模式切换
     elements.displayToggle.forEach(btn => {
         btn.addEventListener('click', () => {
             state.displayMode = btn.dataset.display;
@@ -206,10 +232,16 @@ function updateToggleButtons() {
     }
 }
 
-// 执行搜索
-function performSearch() {
+// 执行搜索（改为全量搜索）
+async function performSearch() {
     state.keyword = elements.searchInput.value.trim();
     state.currentPage = 1;
+    
+    // 如果有搜索关键词，先加载全部数据
+    if (state.keyword) {
+        await loadAllChunks();
+    }
+    
     filterData();
     render();
 }
@@ -248,7 +280,7 @@ function renderResultCount() {
     const filtered = state.filteredData.length;
     
     if (state.keyword || state.sourceFilter) {
-        elements.resultCount.textContent = `找到 ${filtered} 条结果`;
+        elements.resultCount.textContent = `找到 ${filtered} 条结果（已搜索 ${loaded} 条）`;
     } else {
         elements.resultCount.textContent = `已加载 ${loaded}/${total} 条`;
     }
@@ -305,7 +337,7 @@ function renderTableView(pageData, start) {
         return `
             <div class="table-row" onclick="showDetail(${start + i})">
                 <span class="num">${num}</span>
-                <span class="content problem">${highlightKeyword(escapeHtml(problemText))}${isCompact ? '' : ''}</span>
+                <span class="content problem">${highlightKeyword(escapeHtml(problemText))}</span>
                 <span class="content solution">${highlightKeyword(escapeHtml(solutionText))}</span>
                 <span class="action">详情</span>
             </div>
@@ -333,7 +365,6 @@ function renderCardView(pageData, start) {
                 </div>
                 <div class="qa-preview">
                     ${highlightKeyword(escapeHtml(displayText))}
-                    ${isCompact && displayText.length >= 50 ? '<span class="more">...</span>' : ''}
                 </div>
             </div>
         `;
@@ -392,6 +423,7 @@ function processContent(text) {
     
     let processed = escapeHtml(text);
     
+    // 处理图片URL
     processed = processed.replace(
         /!\[图片\]\(([^)]+)\)/g,
         '<img src="$1" alt="图片" class="qa-image" onclick="showImageModal(this)" loading="lazy" onerror="this.style.display=\'none\'" />'
