@@ -297,18 +297,26 @@ function showDetail(index) {
 function renderContent(text) {
     if (!text) return '<span class="no-content">无</span>';
     
-    let html = escapeHtml(text);
-    
-    // 图片：将 Markdown 格式转为 img 标签
-    html = html.replace(/!\[图片\]\(([^)]+)\)/g, (match, url) => {
-        return `<img src="${url}" alt="图片" class="qa-image" onclick="showImage(this)" loading="lazy" onerror="this.onerror=null;this.src='';this.outerHTML='<span class=\\'img-error\\'>[图片加载失败]</span>'">`;
+    // 先提取图片URL，用占位符替换（避免高亮破坏图片标签）
+    const images = [];
+    let html = text.replace(/!\[图片\]\(([^)]+)\)/g, (match, url) => {
+        images.push(url);
+        return `__IMG_${images.length - 1}__`;
     });
     
-    // 关键词高亮
+    // 转义HTML（不包含图片标签）
+    html = escapeHtml(html);
+    
+    // 关键词高亮（在纯文本上操作）
     if (state.keyword) {
         const re = new RegExp(`(${escapeRegex(state.keyword)})`, 'gi');
         html = html.replace(re, '<span class="highlight">$1</span>');
     }
+    
+    // 最后恢复图片
+    images.forEach((url, i) => {
+        html = html.replace(`__IMG_${i}__`, `<img src="${url}" alt="图片" class="qa-image" onclick="showImage(this)" loading="lazy" onerror="this.outerHTML='[图片加载失败]'">`);
+    });
     
     return html;
 }
