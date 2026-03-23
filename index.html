@@ -30,7 +30,6 @@
 
             <!-- 来源筛选 -->
             <div class="filter-box">
-                <label>来源</label>
                 <select id="sourceFilter">
                     <option value="">全部来源</option>
                 </select>
@@ -38,40 +37,42 @@
 
             <!-- 视图切换 -->
             <div class="view-toggle">
-                <button data-view="table" class="active">表格</button>
+                <button data-view="table">表格</button>
                 <button data-view="card">卡片</button>
             </div>
 
-            <!-- 展示模式切换 -->
+            <!-- 展示切换 -->
             <div class="display-toggle">
-                <button data-display="compact" class="active">缩略</button>
+                <button data-display="compact">缩略</button>
                 <button data-display="full">完整</button>
             </div>
         </div>
 
         <!-- 结果统计 -->
-        <div class="result-info">
-            <span id="resultCount"></span>
+        <div class="result-info" id="resultCount">
+            已加载 0 条
         </div>
 
         <!-- 数据列表 -->
-        <div class="qa-list" id="qaList">
-            <!-- 数据将通过JS动态加载 -->
+        <div id="qaList" class="qa-list">
+            <!-- 动态渲染 -->
         </div>
 
         <!-- 分页 -->
-        <div class="pagination" id="pagination"></div>
+        <div id="pagination" class="pagination">
+            <!-- 动态渲染 -->
+        </div>
 
         <!-- 加载状态 -->
-        <div class="loading" id="loading">
+        <div id="loading" class="loading" style="display:none;">
             <div class="spinner"></div>
-            <span class="loading-text">加载中...</span>
+            <span>正在加载...</span>
         </div>
 
         <!-- 错误提示 -->
-        <div class="error" id="error" style="display: none;">
-            <p>数据加载失败，请刷新页面重试</p>
-            <button onclick="location.reload()">刷新页面</button>
+        <div id="error" class="error" style="display:none;">
+            <p>数据加载失败</p>
+            <button onclick="location.reload()">重试</button>
         </div>
     </div>
 
