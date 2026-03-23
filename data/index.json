@@ -1,73 +1,25 @@
 {
-  "update_time": "2026-03-23T11:26:41.647527",
-  "total_count": 5907,
+  "update_time": "2026-03-23T15:36:56.033673",
+  "total_count": 5909,
   "source_stats": {
     "日常运维QA": 36,
-    "日常运维QA（已满）": 5152,
+    "日常运维QA（已满）": 5154,
     "日常运维QA（记这个）": 719
   },
   "chunk_count": 12,
   "chunk_size": 500,
   "chunks": [
-    {
-      "index": 0,
-      "file": "chunks/chunk_0.json",
-      "count": 500
-    },
-    {
-      "index": 1,
-      "file": "chunks/chunk_1.json",
-      "count": 500
-    },
-    {
-      "index": 2,
-      "file": "chunks/chunk_2.json",
-      "count": 500
-    },
-    {
-      "index": 3,
-      "file": "chunks/chunk_3.json",
-      "count": 500
-    },
-    {
-      "index": 4,
-      "file": "chunks/chunk_4.json",
-      "count": 500
-    },
-    {
-      "index": 5,
-      "file": "chunks/chunk_5.json",
-      "count": 500
-    },
-    {
-      "index": 6,
-      "file": "chunks/chunk_6.json",
-      "count": 500
-    },
-    {
-      "index": 7,
-      "file": "chunks/chunk_7.json",
-      "count": 500
-    },
-    {
-      "index": 8,
-      "file": "chunks/chunk_8.json",
-      "count": 500
-    },
-    {
-      "index": 9,
-      "file": "chunks/chunk_9.json",
-      "count": 500
-    },
-    {
-      "index": 10,
-      "file": "chunks/chunk_10.json",
-      "count": 500
-    },
-    {
-      "index": 11,
-      "file": "chunks/chunk_11.json",
-      "count": 407
-    }
+    "chunk_0.json",
+    "chunk_1.json",
+    "chunk_2.json",
+    "chunk_3.json",
+    "chunk_4.json",
+    "chunk_5.json",
+    "chunk_6.json",
+    "chunk_7.json",
+    "chunk_8.json",
+    "chunk_9.json",
+    "chunk_10.json",
+    "chunk_11.json"
   ]
 }
