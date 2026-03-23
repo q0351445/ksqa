@@ -80,8 +80,8 @@ async function loadChunk(index) {
     if (state.loadedChunks.has(index)) return;
     if (!state.indexData.chunks[index]) return;
     
-    const chunk = state.indexData.chunks[index];
-    const res = await fetch('data/' + chunk.file);
+    const chunkFile = state.indexData.chunks[index];
+    const res = await fetch('data/chunks/' + chunkFile);
     if (!res.ok) throw new Error(`分片${index}加载失败`);
     
     const data = await res.json();
