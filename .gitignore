@@ -25,3 +25,10 @@ push_to_github.bat
 # 开发用JS文件
 js/app.js.full
 js/app_chunked.js
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
