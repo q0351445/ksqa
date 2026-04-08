@@ -1789,7 +1789,7 @@
     {
       "id": 1298,
       "problem": "客户反馈在机构版交易员用上一日新开的子账号下单报：“319501002，客户资金账号不能为空”，单子委托状态是场内拒绝。",
-      "solution": "经查这个报错是V8T报的，在下单时校验客户号不存在就会有这个情况。由于客户其他两个子账号下单是没问题，检查了这个子帐号的交易编码设置情况也没问题。后来了解到客户机构版跟V8T之间是采用的级联模式，这样机构版里的客户号级联关系必须配置才可以。让客户检查此处确实没有配置。客户号级联关系设置后需要重启下报盘获取下账号信息，而且这个是通过分发的方式分发到V8T才可以。因此建议客户先配置好再看看。 ![图片](https://hb-v4-attachment-oss.huoban.com/attachment/594071335/0?sign=q-sign-algorithm%3Dsha1%26q-ak%3DAKIDwpKza4Yu8FVfieRyqt8iP8tsrqnrvvpc%26q-sign-time%3D1775207283%3B1775380143%26q-key-time%3D1775207283%3B1775380143%26q-header-list%3Dhost%26q-url-param-list%3Dresponse-content-disposition%26q-signature%3D0ab6c30f2ddf6bef8d7ec4f0be149ea091f75ee8&response-content-disposition=inline%3B%20filename%3D%22R76%2540NSC3MWE%255B7_LJDLJYGW8.png%22%3B%20filename%2A%3Dutf-8%27%27R76%2540NSC3MWE%255B7_LJDLJYGW8.png)",
+      "solution": "经查这个报错是V8T报的，在下单时校验客户号不存在就会有这个情况。由于客户其他两个子账号下单是没问题，检查了这个子帐号的交易编码设置情况也没问题。后来了解到客户机构版跟V8T之间是采用的级联模式，这样机构版里的客户号级联关系必须配置才可以。让客户检查此处确实没有配置。客户号级联关系设置后需要重启下报盘获取下账号信息，而且这个是通过分发的方式分发到V8T才可以。因此建议客户先配置好再看看。 ![图片](https://hb-v4-attachment-oss.huoban.com/attachment/594071335/0?sign=q-sign-algorithm%3Dsha1%26q-ak%3DAKIDwpKza4Yu8FVfieRyqt8iP8tsrqnrvvpc%26q-sign-time%3D1775633680%3B1775806540%26q-key-time%3D1775633680%3B1775806540%26q-header-list%3Dhost%26q-url-param-list%3Dresponse-content-disposition%26q-signature%3D745e12ddc7a5aeda0130dd18ecfe943c1f2f9323&response-content-disposition=inline%3B%20filename%3D%22R76%2540NSC3MWE%255B7_LJDLJYGW8.png%22%3B%20filename%2A%3Dutf-8%27%27R76%2540NSC3MWE%255B7_LJDLJYGW8.png)",
       "source": "日常运维QA（已满）"
     },
     {
