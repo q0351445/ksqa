@@ -61,7 +61,7 @@
     {
       "id": 510,
       "problem": "11月06号做了一把密钥同步，之后签到超时，原因是密钥同步后写不进系统，提示writePINK失败，密钥同步失败。",
-      "solution": "经排查，目前一线通所在机器的用户为普通用户，非administrator用户，对.0.SYS，.1.SYS，.2.SYS，.3.SYS等文件没有写权限，所以密钥同步失败。 对这些文件增加写权限后，同步就成功了，进而签到也成功了。 文件属性→安全里进行设置 ![图片](https://hb-v4-attachment-oss.huoban.com/attachment/611798012/0?sign=q-sign-algorithm%3Dsha1%26q-ak%3DAKIDwpKza4Yu8FVfieRyqt8iP8tsrqnrvvpc%26q-sign-time%3D1776130437%3B1776303297%26q-key-time%3D1776130437%3B1776303297%26q-header-list%3Dhost%26q-url-param-list%3Dresponse-content-disposition%26q-signature%3D2caf3a2a78ca8067865c664c7c618c9a7fbbaa6a&response-content-disposition=inline%3B%20filename%3D%22%25E5%259B%25BE%25E7%2589%2587.png%22%3B%20filename%2A%3Dutf-8%27%27%25E5%259B%25BE%25E7%2589%2587.png)",
+      "solution": "经排查，目前一线通所在机器的用户为普通用户，非administrator用户，对.0.SYS，.1.SYS，.2.SYS，.3.SYS等文件没有写权限，所以密钥同步失败。 对这些文件增加写权限后，同步就成功了，进而签到也成功了。 文件属性→安全里进行设置 ![图片](https://hb-v4-attachment-oss.huoban.com/attachment/611798012/0?sign=q-sign-algorithm%3Dsha1%26q-ak%3DAKIDwpKza4Yu8FVfieRyqt8iP8tsrqnrvvpc%26q-sign-time%3D1776761253%3B1776934113%26q-key-time%3D1776761253%3B1776934113%26q-header-list%3Dhost%26q-url-param-list%3Dresponse-content-disposition%26q-signature%3D481cd434ebd480709d0b57a68a5bd6ba3cef4223&response-content-disposition=inline%3B%20filename%3D%22%25E5%259B%25BE%25E7%2589%2587.png%22%3B%20filename%2A%3Dutf-8%27%27%25E5%259B%25BE%25E7%2589%2587.png)",
       "source": "日常运维QA（已满）"
     },
     {
